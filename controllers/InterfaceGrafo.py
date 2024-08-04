@@ -21,22 +21,22 @@ class InterfaceGrafo:
     
     def __defineOperacoes(self):
         self.__dictOperacoes = {
-            "1": None, # Verificar (Conexo)
-            "2": None, # Verificar (Bipartido)
-            "3": None, # Verificar (Euleriano)
-            "4": None, # Verificar (Possui ciclo)
-            "5": None, # Listar (Componentes conexas)
-            "6": None, # Listar (Componentes fortemente conexas)
-            "7": None, # Listar (Uma trilha Euleriana)
-            "8": None, # Listar ( Vértices de Articulacao)
-            "9": None, # Listar (Identificador das arestas ponte)
-            "10": None, # Gerar (Árvore de profundidade)
-            "11": None, # Gerar (Árvore de largura)
-            "12": None, # Gerar (Árvore geradora mínima)
-            "13": None, # Gerar (Ordem topológica)
-            "14": None, # Gerar (Valor do caminho mínimo entre dois vértices)
-            "15": None, # Gerar (Valor do fluxo máximo)
-            "16": None, # Gerar (Fecho transiƟvo)
+            1: None, # Verificar (Conexo)
+            2: None, # Verificar (Bipartido)
+            3: None, # Verificar (Euleriano)
+            4: None, # Verificar (Possui ciclo)
+            5: None, # Listar (Componentes conexas)
+            6: None, # Listar (Componentes fortemente conexas)
+            7: None, # Listar (Uma trilha Euleriana)
+            8: None, # Listar ( Vértices de Articulacao)
+            9: None, # Listar (Identificador das arestas ponte)
+            10: self.__gerarArvoreProfundidade, # Gerar (Árvore de profundidade)
+            11: self.__gerarArvoreLargura, # Gerar (Árvore de largura)
+            12: None, # Gerar (Árvore geradora mínima)
+            13: None, # Gerar (Ordem topológica)
+            14: None, # Gerar (Valor do caminho mínimo entre dois vértices)
+            15: None, # Gerar (Valor do fluxo máximo)
+            16: None, # Gerar (Fecho transiƟvo)
         }
     
     def executarOperacao(self, idOperacao):
@@ -46,3 +46,13 @@ class InterfaceGrafo:
                 operacao()
         except KeyError:
             return # operacao invalida
+    
+    def __gerarArvoreLargura(self):
+        listaPais = self.__grafo.buscaEmLargura()
+        # indexPais = filter(lambda idAresta, _ : idAresta is None, listaPais)
+        print(listaPais)
+    
+    def __gerarArvoreProfundidade(self):
+        listaPais = self.__grafo.buscaEmProfundidade()
+        # indexPais = filter(lambda idAresta, _ : idAresta is None, listaPais)
+        print(listaPais)
