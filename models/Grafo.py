@@ -9,22 +9,32 @@ class Grafo:
     def __init__(self, *, numVertices, arestas = [], ehDirecionado) -> None:
         self.__ehDirecionado = ehDirecionado
         self.__LA = [
-            Vertice(id = i, vizinhos=[]) for i in range(numVertices)
+            # Vertice(id = i, vizinhos=[]) for i in range(numVertices)
+            Vertice(vizinhos=[]) for _ in range(numVertices)
         ]
 
-        arestas.sort(
-            key = lambda aresta : aresta[2] # ordenando arestas para priorizar ordem lexicográfica (padronizar saída)
-        )
+        if ehDirecionado:
+            arestas.sort(
+                key = lambda aresta : aresta[2] # ordenando arestas para priorizar ordem lexicográfica (padronizar saída beecrowd)
+            )
+            adicionarAresta = self.__adicionarArestasD
+        else:
+            arestas.sort(
+                key = lambda aresta : (aresta[2], aresta[1]) # ordenando arestas para priorizar ordem lexicográfica (padronizar saída beecrowd)
+            )
+            adicionarAresta = self.__adicionarArestasND
 
         for aresta in arestas:
-            self.__adicionarAresta(*aresta)
+            adicionarAresta(*aresta)
     
-    def __adicionarAresta(self, idAresta, v1, v2, pesoAresta):
+    def __adicionarArestasD(self, idAresta, v1, v2, pesoAresta):
 
         self.__LA[v1].adicionarVizinho(idAresta = idAresta, idVizinho = v2, pesoAresta = pesoAresta)
+    
+    def __adicionarArestasND(self, idAresta, v1, v2, pesoAresta):
 
-        if self.__ehDirecionado:
-            self.__LA[v2].adicionarVizinho(idAresta = idAresta, idVizinho = v1, pesoAresta = pesoAresta)
+        self.__LA[v1].adicionarVizinho(idAresta = idAresta, idVizinho = v2, pesoAresta = pesoAresta)
+        self.__LA[v2].adicionarVizinho(idAresta = idAresta, idVizinho = v1, pesoAresta = pesoAresta)
     
     @staticmethod
     def __escolherVerticeInicial(listaCores):

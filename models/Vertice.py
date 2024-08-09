@@ -1,5 +1,5 @@
 class Vertice:
-    def __init__(self, *, id, vizinhos = []) -> None:
+    def __init__(self, *, vizinhos = []) -> None:
         # self.__id = id
         self.vizinhos = list(vizinhos) # id_aresta, vizinho, peso_da_aresta
     

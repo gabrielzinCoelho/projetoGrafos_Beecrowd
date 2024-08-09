@@ -8,13 +8,13 @@ class InterfaceGrafo:
         self.__defineOperacoes()
 
     def __lerGrafo(self):
-        numVertices, numArestas = Utilitarios.lerListaInteiros(numEntradas = 2)
+        numVertices, numArestas = Utilitarios.lerListaInteiros()
         ehDirecionado = True if input().strip() == "direcionado" else False
         arestas = []
 
         for _ in range(numArestas):
             arestas.append(
-                tuple(Utilitarios.lerListaInteiros(numEntradas = 4)) # id_aresta, vértice_u, vértice_v, peso_da_aresta 
+                tuple(Utilitarios.lerListaInteiros()) # id_aresta, vértice_u, vértice_v, peso_da_aresta 
             )
         
         self.__grafo = Grafo(numVertices = numVertices, arestas = arestas, ehDirecionado = ehDirecionado)
