@@ -44,13 +44,14 @@ class Grafo:
                 return indexVertice
         return None
     
+    
     def buscaEmLargura(self):
 
         numVertices = len(self.__LA)
 
         listaPais = [(-1, -1)] * numVertices # idAresta, pai
         listaCores = [Grafo.COR_BRANCO] * numVertices
-        # listaDistancias = [0] * numVertices
+        listaDistancias = [0] * numVertices
 
         indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
         
@@ -62,42 +63,85 @@ class Grafo:
 
             while filaVisita:
                 verticeAtual = filaVisita.pop(0)
+                novaDistancia = listaDistancias[verticeAtual] + 1
 
                 for idAresta, idVizinho, _ in self.__LA[verticeAtual].vizinhos:
                     if listaCores[idVizinho] == Grafo.COR_BRANCO:
                         filaVisita.append(idVizinho)
                         listaCores[idVizinho] = Grafo.COR_CINZA
                         listaPais[idVizinho] = (idAresta, verticeAtual)
+                        listaDistancias[idVizinho] = novaDistancia
                 listaCores[verticeAtual] = Grafo.COR_PRETO
             
             indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
         
-        return listaPais
+        return listaPais, listaDistancias
     
 
     def buscaEmProfundidade(self):
+
+        def buscaEmProfundidadeAux(verticeAtual):
+            for idAresta, idVizinho, _ in self.__LA[verticeAtual].vizinhos:
+                if listaCores[idVizinho] == Grafo.COR_BRANCO:
+                    listaCores[idVizinho] = Grafo.COR_CINZA
+                    listaPais[idVizinho] = (idAresta, verticeAtual)
+                    buscaEmProfundidadeAux(idVizinho)
+            listaCores[verticeAtual] = Grafo.COR_PRETO
         
         numVertices = len(self.__LA)
 
         listaPais = [(-1, -1)] * numVertices # idAresta, pai
         listaCores = [Grafo.COR_BRANCO] * numVertices
-        # listaDistancias = [0] * numVertices
 
         indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
 
         while indexInicialBusca is not None:
             listaPais[indexInicialBusca] = (None, indexInicialBusca)
             listaCores[indexInicialBusca] = Grafo.COR_CINZA
-            self.__buscaEmProfundidadeAux(indexInicialBusca, listaPais, listaCores)
+            buscaEmProfundidadeAux(indexInicialBusca)
             indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
         
         return listaPais
 
+    def arvoreDeLargura(self):
 
-    def __buscaEmProfundidadeAux(self, verticeAtual, listaPais, listaCores):
-        for idAresta, idVizinho, _ in self.__LA[verticeAtual].vizinhos:
-            if listaCores[idVizinho] == Grafo.COR_BRANCO:
-                listaCores[idVizinho] = Grafo.COR_CINZA
-                listaPais[idVizinho] = (idAresta, verticeAtual)
-                self.__buscaEmProfundidadeAux(idVizinho, listaPais, listaCores)
-        listaCores[verticeAtual] = Grafo.COR_PRETO
+        numVertices = len(self.__LA)
+        listaCores = [Grafo.COR_BRANCO] * numVertices
+        arvoreDeLargura = []
+        
+        indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
+        filaVisita = [indexInicialBusca]
+        listaCores[indexInicialBusca] = Grafo.COR_CINZA
+    
+        while filaVisita:
+            verticeAtual = filaVisita.pop(0)
+
+            for idAresta, idVizinho, _ in self.__LA[verticeAtual].vizinhos:
+                if listaCores[idVizinho] == Grafo.COR_BRANCO:
+                    filaVisita.append(idVizinho)
+                    listaCores[idVizinho] = Grafo.COR_CINZA
+                    arvoreDeLargura.append(idAresta)
+            listaCores[verticeAtual] = Grafo.COR_PRETO
+
+        
+        return arvoreDeLargura
+    
+    def arvoreDeProfundidade(self):
+
+        def buscaEmProfundidadeAux(verticeAtual):
+            for idAresta, idVizinho, _ in self.__LA[verticeAtual].vizinhos:
+                if listaCores[idVizinho] == Grafo.COR_BRANCO:
+                    arvoreDeProfundidade.append(idAresta)
+                    listaCores[idVizinho] = Grafo.COR_CINZA
+                    buscaEmProfundidadeAux(idVizinho)
+            listaCores[verticeAtual] = Grafo.COR_PRETO
+        
+        numVertices = len(self.__LA)
+        listaCores = [Grafo.COR_BRANCO] * numVertices
+        arvoreDeProfundidade = []
+        
+        indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
+        listaCores[indexInicialBusca] = Grafo.COR_CINZA
+        buscaEmProfundidadeAux(indexInicialBusca)
+
+        return arvoreDeProfundidade

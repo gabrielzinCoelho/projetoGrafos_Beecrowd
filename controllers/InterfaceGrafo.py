@@ -48,11 +48,9 @@ class InterfaceGrafo:
             return # operacao invalida
     
     def __gerarArvoreLargura(self):
-        listaPais = self.__grafo.buscaEmLargura()
-        # indexPais = filter(lambda idAresta, _ : idAresta is None, listaPais)
-        print(listaPais)
+        arvoreDeLargura = self.__grafo.arvoreDeLargura()
+        print(*arvoreDeLargura, sep = ' ')
     
     def __gerarArvoreProfundidade(self):
-        listaPais = self.__grafo.buscaEmProfundidade()
-        # indexPais = filter(lambda idAresta, _ : idAresta is None, listaPais)
-        print(listaPais)
+        arvoreProfundidade = self.__grafo.arvoreDeProfundidade()
+        print(*arvoreProfundidade, sep = ' ')
