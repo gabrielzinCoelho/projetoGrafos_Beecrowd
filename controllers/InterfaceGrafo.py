@@ -32,8 +32,8 @@ class InterfaceGrafo:
             9: None, # Listar (Identificador das arestas ponte)
             10: self.__gerarArvoreProfundidade, # Gerar (Árvore de profundidade)
             11: self.__gerarArvoreLargura, # Gerar (Árvore de largura)
-            12: None, # Gerar (Árvore geradora mínima)
-            13: None, # Gerar (Ordem topológica)
+            12: self.__arvoreGeradoraMinima, # Gerar (Árvore geradora mínima)
+            13: self.__ordemTopologica, # Gerar (Ordem topológica)
             14: None, # Gerar (Valor do caminho mínimo entre dois vértices)
             15: None, # Gerar (Valor do fluxo máximo)
             16: None, # Gerar (Fecho transiƟvo)
@@ -54,3 +54,14 @@ class InterfaceGrafo:
     def __gerarArvoreProfundidade(self):
         arvoreProfundidade = self.__grafo.arvoreDeProfundidade()
         print(*arvoreProfundidade, sep = ' ')
+    
+    def __ordemTopologica(self):
+        if not self.__grafo.ehDirecionado:
+            print(-1)
+        else:
+            ordemExecucao = self.__grafo.ordemTopologica()
+            print(*ordemExecucao, sep = ' ')
+
+    def __arvoreGeradoraMinima(self):
+        AGM = self.__grafo.AGM()
+        print(*AGM, sep = ' ')

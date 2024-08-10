@@ -1,3 +1,5 @@
+import heapq
+
 from .Vertice import Vertice
 
 class Grafo:
@@ -7,7 +9,8 @@ class Grafo:
     COR_PRETO = 2
 
     def __init__(self, *, numVertices, arestas = [], ehDirecionado) -> None:
-        self.__ehDirecionado = ehDirecionado
+        self.__numVertices = numVertices
+        self.ehDirecionado = ehDirecionado
         self.__LA = [
             # Vertice(id = i, vizinhos=[]) for i in range(numVertices)
             Vertice(vizinhos=[]) for _ in range(numVertices)
@@ -47,11 +50,9 @@ class Grafo:
     
     def buscaEmLargura(self):
 
-        numVertices = len(self.__LA)
-
-        listaPais = [(-1, -1)] * numVertices # idAresta, pai
-        listaCores = [Grafo.COR_BRANCO] * numVertices
-        listaDistancias = [0] * numVertices
+        listaPais = [(-1, -1)] * self.__numVertices # idAresta, pai
+        listaCores = [Grafo.COR_BRANCO] * self.__numVertices
+        listaDistancias = [0] * self.__numVertices
 
         indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
         
@@ -78,7 +79,7 @@ class Grafo:
         return listaPais, listaDistancias
     
 
-    def buscaEmProfundidade(self):
+    def buscaEmProfundidade(self, callbackPreto = None):
 
         def buscaEmProfundidadeAux(verticeAtual):
             for idAresta, idVizinho, _ in self.__LA[verticeAtual].vizinhos:
@@ -87,11 +88,12 @@ class Grafo:
                     listaPais[idVizinho] = (idAresta, verticeAtual)
                     buscaEmProfundidadeAux(idVizinho)
             listaCores[verticeAtual] = Grafo.COR_PRETO
-        
-        numVertices = len(self.__LA)
+            if callbackPreto is not None:
+                callbackPreto(verticeAtual)
+    
 
-        listaPais = [(-1, -1)] * numVertices # idAresta, pai
-        listaCores = [Grafo.COR_BRANCO] * numVertices
+        listaPais = [(-1, -1)] * self.__numVertices # idAresta, pai
+        listaCores = [Grafo.COR_BRANCO] * self.__numVertices
 
         indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
 
@@ -105,8 +107,7 @@ class Grafo:
 
     def arvoreDeLargura(self):
 
-        numVertices = len(self.__LA)
-        listaCores = [Grafo.COR_BRANCO] * numVertices
+        listaCores = [Grafo.COR_BRANCO] * self.__numVertices
         arvoreDeLargura = []
         
         indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
@@ -135,9 +136,8 @@ class Grafo:
                     listaCores[idVizinho] = Grafo.COR_CINZA
                     buscaEmProfundidadeAux(idVizinho)
             listaCores[verticeAtual] = Grafo.COR_PRETO
-        
-        numVertices = len(self.__LA)
-        listaCores = [Grafo.COR_BRANCO] * numVertices
+
+        listaCores = [Grafo.COR_BRANCO] * self.__numVertices
         arvoreDeProfundidade = []
         
         indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
@@ -145,3 +145,38 @@ class Grafo:
         buscaEmProfundidadeAux(indexInicialBusca)
 
         return arvoreDeProfundidade
+    
+    def ordemTopologica(self):
+
+        def adicionarOrdemExecucao(verticePreto):
+            ordemExecucao.insert(0, verticePreto)
+
+        ordemExecucao = []
+        self.buscaEmProfundidade(callbackPreto = adicionarOrdemExecucao)
+        return ordemExecucao
+    
+    def AGM(self):
+
+        def atualizaHeap(indexVertice):
+            adicionadoAGM[indexVertice] = True
+            for idAresta, vizinho, pesoAresta in self.__LA[indexVertice].vizinhos:
+                if not adicionadoAGM[vizinho]:
+                    heapq.heappush(heapArestas, (pesoAresta, vizinho, idAresta))
+
+        adicionadoAGM = [False for _ in range(self.__numVertices)]
+        AGM = [] # id_arestas que pertencem à AGM
+        heapArestas = []
+
+        custo = 0
+
+        atualizaHeap(0)
+
+        while heapArestas:
+            c, vertice, idAresta = heapq.heappop(heapArestas)
+            if not adicionadoAGM[vertice]:
+                AGM.append(idAresta)
+                atualizaHeap(vertice)
+                custo += c
+        print(c)
+        return AGM
+    
