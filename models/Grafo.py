@@ -15,7 +15,7 @@ class Grafo:
         self.ehDirecionado = ehDirecionado
         self.__LA = [
             # Vertice(id = i, vizinhos=[]) for i in range(numVertices)
-            Vertice(vizinhos=[]) for _ in range(numVertices)
+            Vertice(vizinhos = {}) for _ in range(numVertices)
         ]
 
         if ehDirecionado:
@@ -68,7 +68,7 @@ class Grafo:
                 verticeAtual = filaVisita.pop(0)
                 novaDistancia = listaDistancias[verticeAtual] + 1
 
-                for idAresta, idVizinho, _ in self.__LA[verticeAtual].vizinhos:
+                for idAresta, (idVizinho, _) in self.__LA[verticeAtual].vizinhos.items():
                     if listaCores[idVizinho] == Grafo.COR_BRANCO:
                         filaVisita.append(idVizinho)
                         listaCores[idVizinho] = Grafo.COR_CINZA
@@ -84,7 +84,7 @@ class Grafo:
     def buscaEmProfundidade(self, callbackPreto = None):
 
         def buscaEmProfundidadeAux(verticeAtual):
-            for idAresta, idVizinho, _ in self.__LA[verticeAtual].vizinhos:
+            for idAresta, (idVizinho, _) in self.__LA[verticeAtual].vizinhos.items():
                 if listaCores[idVizinho] == Grafo.COR_BRANCO:
                     listaCores[idVizinho] = Grafo.COR_CINZA
                     listaPais[idVizinho] = (idAresta, verticeAtual)
@@ -119,7 +119,7 @@ class Grafo:
         while filaVisita:
             verticeAtual = filaVisita.pop(0)
 
-            for idAresta, idVizinho, _ in self.__LA[verticeAtual].vizinhos:
+            for idAresta, (idVizinho, _) in self.__LA[verticeAtual].vizinhos.items():
                 if listaCores[idVizinho] == Grafo.COR_BRANCO:
                     filaVisita.append(idVizinho)
                     listaCores[idVizinho] = Grafo.COR_CINZA
@@ -132,7 +132,7 @@ class Grafo:
     def arvoreDeProfundidade(self):
 
         def buscaEmProfundidadeAux(verticeAtual):
-            for idAresta, idVizinho, _ in self.__LA[verticeAtual].vizinhos:
+            for idAresta, (idVizinho, _) in self.__LA[verticeAtual].vizinhos.items():
                 if listaCores[idVizinho] == Grafo.COR_BRANCO:
                     arvoreDeProfundidade.append(idAresta)
                     listaCores[idVizinho] = Grafo.COR_CINZA
@@ -161,7 +161,7 @@ class Grafo:
 
         def atualizaHeap(indexVertice):
             adicionadoAGM[indexVertice] = True
-            for idAresta, vizinho, pesoAresta in self.__LA[indexVertice].vizinhos:
+            for idAresta, (vizinho, pesoAresta) in self.__LA[indexVertice].vizinhos.items():
                 if not adicionadoAGM[vizinho]:
                     heapq.heappush(heapArestas, (pesoAresta, vizinho, idAresta))
 
@@ -195,7 +195,7 @@ class Grafo:
             tempoDescoberta[indexVertice] = low[indexVertice] = tempoAtual
             tempoAtual += 1
 
-            for idAresta, idVizinho, _ in vertice.vizinhos:
+            for idAresta, (idVizinho, _) in vertice.vizinhos.items():
                 if naoVisitado(idVizinho):
 
                     pai[idVizinho] = indexVertice
@@ -246,7 +246,7 @@ class Grafo:
                 numArestasDisponiveis = 0
                 ehArestaUnica = True
 
-                for vIdAresta, _, _ in verticeAtual.vizinhos:
+                for vIdAresta in verticeAtual.vizinhos.keys():
                     if arestasNaoExploradas[vIdAresta]:
                         if numArestasDisponiveis == 0:
                             numArestasDisponiveis = 1
@@ -274,7 +274,7 @@ class Grafo:
             verticeAtual = self.__LA[circuito[-1]]
             pontes = None
 
-            for idAresta, idVizinho, _ in verticeAtual.vizinhos:
+            for idAresta, (idVizinho, _) in verticeAtual.vizinhos.items():
                 if arestasNaoExploradas[idAresta] and arestaValida(idAresta):
 
                     arestasNaoExploradas[idAresta] = False                    
@@ -309,9 +309,93 @@ class Grafo:
             NotImplementedError()
     
     def fordFulkerson(self):
+
+        def criarGrafoResidual():
+            grafoResidual = copy.deepcopy(self)
+
+            for i, vertice in enumerate(grafoResidual.__LA):
+                    for idAresta, (idVizinho, _) in vertice.vizinhos.items():
+                        grafoResidual.__LA[idVizinho].vizinhos[idAresta] = (i, 0)
+
+            return grafoResidual
+
+        def buscaCaminhoAumentante():
+
+            arestasPai = [-1] * grafoResidual.__numVertices # idAresta, pai
+            listaCores = [Grafo.COR_BRANCO] * grafoResidual.__numVertices
+            # listaDistancias = [0] * self.__numVertices
+                
+            filaVisita = [verticeOrigem]
+            listaCores[verticeOrigem] = Grafo.COR_CINZA
+            arestasPai[verticeOrigem] = None
+
+            destinoAlcancado = False
+
+            while filaVisita and not destinoAlcancado:
+                verticeAtual = filaVisita.pop(0)
+                # novaDistancia = listaDistancias[verticeAtual] + 1
+
+                for idAresta, (idVizinho, _) in grafoResidual.__LA[verticeAtual].vizinhos.items():
+                    if listaCores[idVizinho] == Grafo.COR_BRANCO:
+                        filaVisita.append(idVizinho)
+                        listaCores[idVizinho] = Grafo.COR_CINZA
+                        arestasPai[idVizinho] = idAresta
+                        # listaDistancias[idVizinho] = novaDistancia
+
+                        # primeiro vertice a encontrar o destino encerra a busca
+                        if idVizinho == verticeDestino:
+                            destinoAlcancado = True
+                            break
+
+                # listaCores[verticeAtual] = Grafo.COR_PRETO
+
+            return arestasPai
+        
+        def atualizaFluxoRede():
+
+            def atualizaCapacidade(u, v, fluxoAtual):
+                capacidadeAntiga = grafoResidual.__LA[u].vizinhos[idAresta][1]
+                grafoResidual.__LA[u].vizinhos[idAresta] = (v, capacidadeAntiga + fluxoAtual)
+            
+            INFINITO = 1000000000
+
+            arestasPai = buscaCaminhoAumentante()
+            verticeAtual = verticeDestino
+            fluxoAtual = INFINITO
+
+            caminhoAumentante = [] # u, v, idAresta (u, v)
+
+            if arestasPai[verticeDestino] == -1:
+                return 0
+            
+            while verticeAtual != verticeOrigem:
+                idArestaPai = arestasPai[verticeAtual]
+                pai, capacidadeAresta = grafoResidual.__LA[verticeAtual].vizinhos[idArestaPai]
+
+                fluxoAtual = min(fluxoAtual, capacidadeAresta)
+                caminhoAumentante.append((pai, verticeAtual, idArestaPai))
+
+                verticeAtual = pai
+
+            # atualizando valores de capacidade para conservar fluxo
+            for u, v, idAresta in caminhoAumentante:
+                atualizaCapacidade(u, v, -fluxoAtual)
+                atualizaCapacidade(v, u, fluxoAtual)
+            
+            return fluxoAtual
+
         verticeOrigem = 0
         verticeDestino = self.__numVertices - 1
         fluxoMaximo = 0
+        grafoResidual = criarGrafoResidual()
 
-        grafoResidual = copy.deepcopy(self)
+        fluxoEncerrado = False
+
+        while not fluxoEncerrado:
+            fluxoAtual = atualizaFluxoRede()
+            if not fluxoAtual:
+                fluxoEncerrado = True
+            else:
+                fluxoMaximo += fluxoAtual
+        return fluxoMaximo
         
