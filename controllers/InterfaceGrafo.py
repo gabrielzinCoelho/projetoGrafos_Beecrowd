@@ -27,7 +27,6 @@ class InterfaceGrafo:
             3: None, # Verificar (Possui ciclo)
             4: None, # Listar (Componentes conexas)
             5: None, # Listar (Componentes fortemente conexas)
-            # 6: None, # Listar (Uma trilha Euleriana)
             6: self.__listarArticulacoes, # Listar ( Vértices de Articulacao)
             7: None, # Listar (Identificador das arestas ponte)
             8: self.__gerarArvoreProfundidade, # Gerar (Árvore de profundidade)
@@ -37,6 +36,7 @@ class InterfaceGrafo:
             12: None, # Gerar (Valor do caminho mínimo entre dois vértices)
             13: None, # Gerar (Valor do fluxo máximo)
             14: None, # Gerar (Fecho transitivo)
+            15: self.__listarTrilhaEuleriana, # Listar (Uma trilha Euleriana)
         }
     
     def executarOperacao(self, idOperacao):
@@ -76,3 +76,7 @@ class InterfaceGrafo:
             articulacoes, _ = self.__grafo.tarjan()
             articulacoesOrdenadas = sorted(articulacoes)
             print(*articulacoesOrdenadas, sep = ' ')
+    
+    def __listarTrilhaEuleriana(self):
+        trilhaEuleriana = self.__grafo.trilhaEuleriana()
+        print(*trilhaEuleriana, sep = ' ')

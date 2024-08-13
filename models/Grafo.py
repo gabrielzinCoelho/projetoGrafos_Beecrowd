@@ -233,10 +233,35 @@ class Grafo:
         return articulacoes, pontes
     
 
-    def fleury(self, verticeInicial):
+    def fleury(self, *, verticeInicial = 0):
 
-        def arestaValida(id):
-            pass
+        def arestaValida(idAresta):
+
+            nonlocal pontes
+            
+            if pontes is None:
+                # primeira aresta sendo verificada
+
+                numArestasDisponiveis = 0
+                ehArestaUnica = True
+
+                for vIdAresta, _, _ in verticeAtual.vizinhos:
+                    if arestasNaoExploradas[vIdAresta]:
+                        if numArestasDisponiveis == 0:
+                            numArestasDisponiveis = 1
+                        else:
+                            ehArestaUnica = False
+                            break
+                
+                if ehArestaUnica:
+                    return True
+                
+
+                _, pontes = self.tarjan()
+            
+            # pontes ja foram calculadas e aresta nao e unica
+            # True se aresta nao eh ponte, False se aresta eh ponte
+            return not (idAresta in pontes)
 
         NAO_EXPLORADO = True
         numArestasRestantes = self.__numArestas
@@ -246,18 +271,44 @@ class Grafo:
         while numArestasRestantes:
 
             verticeAtual = self.__LA[circuito[-1]]
+            pontes = None
 
             for idAresta, idVizinho, _ in verticeAtual.vizinhos:
                 if arestasNaoExploradas[idAresta] and arestaValida(idAresta):
 
                     arestasNaoExploradas[idAresta] = False
-                    for vIdAresta, vIdVizinho, _ in self.__LA[idVizinho].vizinhos: # dict -> acesso O(1)
+                    for vIdAresta, vIdVizinho, _ in self.__LA[idVizinho].vizinhos: # dict ou referencia cruzada -> acesso O(1)
                         if vIdVizinho == circuito[-1]:
                             arestasNaoExploradas[vIdAresta] = False
                             break
                     
                     circuito.append(idVizinho)
                     numArestasRestantes -= 1
+                    break
         
         return circuito
+    
+    def trilhaEuleriana(self):
+        
+        # nao_direcionado
+        if not self.ehDirecionado:
+
+            numVerticesImpares = 0
+            verticeImparInicial = None
+
+            for indexVertice, vertice in enumerate(self.__LA):
+                if len(vertice.vizinhos) % 2:
+                    numVerticesImpares += 1
+                    if verticeImparInicial is None:
+                        verticeImparInicial = indexVertice
+            
+            if numVerticesImpares != 2:
+                return None
+            
+            trilhaEuleriana = self.fleury(verticeInicial = verticeImparInicial)
+            return trilhaEuleriana
+
+        # direcionado
+        else:
+            NotImplementedError()
 
