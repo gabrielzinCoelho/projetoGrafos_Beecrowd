@@ -21,22 +21,22 @@ class InterfaceGrafo:
     
     def __defineOperacoes(self):
         self.__dictOperacoes = {
-            1: None, # Verificar (Conexo)
-            2: None, # Verificar (Bipartido)
-            3: None, # Verificar (Euleriano)
-            4: None, # Verificar (Possui ciclo)
-            5: None, # Listar (Componentes conexas)
-            6: None, # Listar (Componentes fortemente conexas)
-            7: None, # Listar (Uma trilha Euleriana)
-            8: None, # Listar ( Vértices de Articulacao)
-            9: None, # Listar (Identificador das arestas ponte)
-            10: self.__gerarArvoreProfundidade, # Gerar (Árvore de profundidade)
-            11: self.__gerarArvoreLargura, # Gerar (Árvore de largura)
-            12: self.__arvoreGeradoraMinima, # Gerar (Árvore geradora mínima)
-            13: self.__ordemTopologica, # Gerar (Ordem topológica)
-            14: None, # Gerar (Valor do caminho mínimo entre dois vértices)
-            15: None, # Gerar (Valor do fluxo máximo)
-            16: None, # Gerar (Fecho transiƟvo)
+            0: None, # Verificar (Conexo)
+            1: None, # Verificar (Bipartido)
+            2: None, # Verificar (Euleriano)
+            3: None, # Verificar (Possui ciclo)
+            4: None, # Listar (Componentes conexas)
+            5: None, # Listar (Componentes fortemente conexas)
+            # 6: None, # Listar (Uma trilha Euleriana)
+            6: self.__listarArticulacoes, # Listar ( Vértices de Articulacao)
+            7: None, # Listar (Identificador das arestas ponte)
+            8: self.__gerarArvoreProfundidade, # Gerar (Árvore de profundidade)
+            9: self.__gerarArvoreLargura, # Gerar (Árvore de largura)
+            10: self.__arvoreGeradoraMinima, # Gerar (Árvore geradora mínima)
+            11: self.__ordemTopologica, # Gerar (Ordem topológica)
+            12: None, # Gerar (Valor do caminho mínimo entre dois vértices)
+            13: None, # Gerar (Valor do fluxo máximo)
+            14: None, # Gerar (Fecho transitivo)
         }
     
     def executarOperacao(self, idOperacao):
@@ -63,5 +63,16 @@ class InterfaceGrafo:
             print(*ordemExecucao, sep = ' ')
 
     def __arvoreGeradoraMinima(self):
-        AGM = self.__grafo.AGM()
-        print(*AGM, sep = ' ')
+        if self.__grafo.ehDirecionado:
+            print(-1)
+        else:
+            AGM = self.__grafo.AGM()
+            print(*AGM, sep = ' ')
+
+    def __listarArticulacoes(self):
+        if self.__grafo.ehDirecionado:
+            print(-1)
+        else:
+            articulacoes, _ = self.__grafo.tarjan()
+            articulacoesOrdenadas = sorted(articulacoes)
+            print(*articulacoesOrdenadas, sep = ' ')

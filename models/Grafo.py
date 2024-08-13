@@ -177,6 +177,56 @@ class Grafo:
                 AGM.append(idAresta)
                 atualizaHeap(vertice)
                 custo += c
-        print(c)
         return AGM
     
+
+    def tarjan(self):
+
+        def naoVisitado(indexVertice):
+            return tempoDescoberta[indexVertice] == NAO_VISITADO
+
+        def tarjanAux(*, indexVertice, ehRaiz = False):
+            
+            nonlocal numFilhosRaiz, tempoAtual
+
+            vertice = self.__LA[indexVertice]
+            tempoDescoberta[indexVertice] = low[indexVertice] = tempoAtual
+            tempoAtual += 1
+
+            for idAresta, idVizinho, _ in vertice.vizinhos:
+                if naoVisitado(idVizinho):
+
+                    pai[idVizinho] = indexVertice
+
+                    tarjanAux(indexVertice = idVizinho)
+                    low[indexVertice] = min(low[indexVertice], low[idVizinho])
+
+                    if ehRaiz:
+                        numFilhosRaiz += 1
+                    elif low[idVizinho] >= tempoDescoberta[indexVertice]:
+                        articulacoes.add(indexVertice)
+
+                    if low[idVizinho] > tempoDescoberta[indexVertice]:
+                        pontes.add(idAresta)
+
+                elif pai[indexVertice] != idVizinho:
+                    low[indexVertice] = min(low[indexVertice], tempoDescoberta[idVizinho])
+
+        NAO_VISITADO = -1
+
+        articulacoes = set()
+        pontes = set()
+
+        tempoDescoberta = [NAO_VISITADO] * self.__numVertices
+        low = [NAO_VISITADO] * self.__numVertices
+        pai = [NAO_VISITADO] * self.__numVertices
+        tempoAtual = 0
+
+        for i in range(self.__numVertices):
+            if naoVisitado(i):
+                numFilhosRaiz = 0
+                tarjanAux(indexVertice = i, ehRaiz = True)
+                if numFilhosRaiz > 1:
+                    articulacoes.add(i)
+
+        return articulacoes, pontes
