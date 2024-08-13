@@ -10,6 +10,7 @@ class Grafo:
 
     def __init__(self, *, numVertices, arestas = [], ehDirecionado) -> None:
         self.__numVertices = numVertices
+        self.__numArestas = len(arestas)
         self.ehDirecionado = ehDirecionado
         self.__LA = [
             # Vertice(id = i, vizinhos=[]) for i in range(numVertices)
@@ -230,3 +231,33 @@ class Grafo:
                     articulacoes.add(i)
 
         return articulacoes, pontes
+    
+
+    def fleury(self, verticeInicial):
+
+        def arestaValida(id):
+            pass
+
+        NAO_EXPLORADO = True
+        numArestasRestantes = self.__numArestas
+        arestasNaoExploradas = [NAO_EXPLORADO] * self.__numArestas
+        circuito = [verticeInicial]
+
+        while numArestasRestantes:
+
+            verticeAtual = self.__LA[circuito[-1]]
+
+            for idAresta, idVizinho, _ in verticeAtual.vizinhos:
+                if arestasNaoExploradas[idAresta] and arestaValida(idAresta):
+
+                    arestasNaoExploradas[idAresta] = False
+                    for vIdAresta, vIdVizinho, _ in self.__LA[idVizinho].vizinhos: # dict -> acesso O(1)
+                        if vIdVizinho == circuito[-1]:
+                            arestasNaoExploradas[vIdAresta] = False
+                            break
+                    
+                    circuito.append(idVizinho)
+                    numArestasRestantes -= 1
+        
+        return circuito
+
