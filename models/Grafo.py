@@ -1,4 +1,5 @@
 import heapq
+import copy
 
 from .Vertice import Vertice
 
@@ -276,12 +277,7 @@ class Grafo:
             for idAresta, idVizinho, _ in verticeAtual.vizinhos:
                 if arestasNaoExploradas[idAresta] and arestaValida(idAresta):
 
-                    arestasNaoExploradas[idAresta] = False
-                    for vIdAresta, vIdVizinho, _ in self.__LA[idVizinho].vizinhos: # dict ou referencia cruzada -> acesso O(1)
-                        if vIdVizinho == circuito[-1]:
-                            arestasNaoExploradas[vIdAresta] = False
-                            break
-                    
+                    arestasNaoExploradas[idAresta] = False                    
                     circuito.append(idVizinho)
                     numArestasRestantes -= 1
                     break
@@ -311,4 +307,11 @@ class Grafo:
         # direcionado
         else:
             NotImplementedError()
+    
+    def fordFulkerson(self):
+        verticeOrigem = 0
+        verticeDestino = self.__numVertices - 1
+        fluxoMaximo = 0
 
+        grafoResidual = copy.deepcopy(self)
+        
