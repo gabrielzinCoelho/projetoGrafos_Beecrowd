@@ -142,7 +142,31 @@ class Grafo:
 
         self.buscaEmProfundidade(callbackCinza = callbackCiclo)
         return int(cicloEncontrado)
+    
+    def ehEuleriano(self): 
+
+        def verticeGrauImparND():
+            for vertice in self.__LA:
+                if len(vertice.vizinhos) % 2:
+                    return True
+            return False
+
+        def grauBalanceadoD():
+            grauEntrada = [0] * self.__numVertices
+            grauSaida = grauEntrada.copy()
+
+            for i, vertice in enumerate(self.__LA):
+                grauSaida[i] = len(vertice.vizinhos)
+                for idVizinho, _ in vertice.vizinhos.values():
+                    grauEntrada[idVizinho] += 1
             
+            return grauEntrada == grauSaida
+
+        # todos vertices com grau par
+        if not self.ehDirecionado:
+            return int(verticeGrauImparND() == False)
+        
+        return int(grauBalanceadoD())
 
     def arvoreDeLargura(self):
 

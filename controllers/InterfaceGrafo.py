@@ -22,20 +22,20 @@ class InterfaceGrafo:
     def __defineOperacoes(self):
         self.__dictOperacoes = {
             0: self.__verificarEhConexo, # Verificar (Conexo)
-            1: None, # Verificar (Bipartido)
-            2: None, # Verificar (Euleriano)
+            1: lambda : print('x'), # Verificar (Bipartido)
+            2: self.__verificarEhEuleriano, # Verificar (Euleriano)
             3: self.__verificarCiclo, # Verificar (Possui ciclo)
-            4: None, # Listar (Componentes conexas)
-            5: None, # Listar (Componentes fortemente conexas)
+            4: lambda : print('x'), # Listar (Componentes conexas)
+            5: lambda : print('x'), # Listar (Componentes fortemente conexas)
             6: self.__listarArticulacoes, # Listar ( Vértices de Articulacao)
-            7: None, # Listar (Identificador das arestas ponte)
+            7: self.__listarPontes, # Listar (Identificador das arestas ponte)
             8: self.__gerarArvoreProfundidade, # Gerar (Árvore de profundidade)
             9: self.__gerarArvoreLargura, # Gerar (Árvore de largura)
             10: self.__arvoreGeradoraMinima, # Gerar (Árvore geradora mínima)
             11: self.__ordemTopologica, # Gerar (Ordem topológica)
-            12: None, # Gerar (Valor do caminho mínimo entre dois vértices)
+            12: lambda : print('x'), # Gerar (Valor do caminho mínimo entre dois vértices)
             13: self.__gerarFluxoMaximo, # Gerar (Valor do fluxo máximo)
-            14: None, # Gerar (Fecho transitivo)
+            14: lambda : print('x'), # Gerar (Fecho transitivo)
             15: self.__listarTrilhaEuleriana, # Listar (Uma trilha Euleriana)
         }
     
@@ -54,6 +54,10 @@ class InterfaceGrafo:
     def __verificarCiclo(self):
         possuiCiclo = self.__grafo.possuiCiclo()
         print(possuiCiclo)
+    
+    def __verificarEhEuleriano(self):
+        ehEuleriano = self.__grafo.ehEuleriano()
+        print(ehEuleriano)
 
     def __gerarArvoreLargura(self):
         arvoreDeLargura = self.__grafo.arvoreDeLargura()
@@ -84,6 +88,14 @@ class InterfaceGrafo:
             articulacoes, _ = self.__grafo.tarjan()
             articulacoesOrdenadas = sorted(articulacoes)
             print(*articulacoesOrdenadas, sep = ' ')
+    
+    def __listarPontes(self):
+        if self.__grafo.ehDirecionado:
+            print(-1)
+        else:
+            _, pontes = self.__grafo.tarjan()
+            numPontes = len(pontes)
+            print(numPontes)
     
     def __listarTrilhaEuleriana(self):
         trilhaEuleriana = self.__grafo.trilhaEuleriana()
