@@ -26,7 +26,7 @@ class InterfaceGrafo:
             2: self.__verificarEhEuleriano, # Verificar (Euleriano)
             3: self.__verificarCiclo, # Verificar (Possui ciclo)
             4: lambda : print('x'), # Listar (Componentes conexas)
-            5: lambda : print('x'), # Listar (Componentes fortemente conexas)
+            5: self.__listarCFC, # Listar (Componentes fortemente conexas)
             6: self.__listarArticulacoes, # Listar ( Vértices de Articulacao)
             7: self.__listarPontes, # Listar (Identificador das arestas ponte)
             8: self.__gerarArvoreProfundidade, # Gerar (Árvore de profundidade)
@@ -58,6 +58,12 @@ class InterfaceGrafo:
     def __verificarEhEuleriano(self):
         ehEuleriano = self.__grafo.ehEuleriano()
         print(ehEuleriano)
+    
+    def __listarCFC(self):
+        if not self.__grafo.ehDirecionado:
+            print(-1)
+        else:
+            print(self.__grafo.componentesFortementeConexas())
 
     def __gerarArvoreLargura(self):
         arvoreDeLargura = self.__grafo.arvoreDeLargura()

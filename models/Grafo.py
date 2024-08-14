@@ -167,6 +167,55 @@ class Grafo:
             return int(verticeGrauImparND() == False)
         
         return int(grauBalanceadoD())
+    
+    def componentesFortementeConexas(self):
+
+        def dfsComponentes():
+
+            def escolherVerticeIncial():
+                for indexVertice in ordemSaida:
+                    if listaCores[indexVertice] == Grafo.COR_BRANCO:
+                        return indexVertice
+                return None    
+
+            def buscaEmProfundidadeAux(verticeAtual):
+
+                for idVizinho, _ in grafoTransposto.__LA[verticeAtual].vizinhos.values():
+                    if listaCores[idVizinho] == Grafo.COR_BRANCO:
+                        listaCores[idVizinho] = Grafo.COR_CINZA
+                        buscaEmProfundidadeAux(idVizinho)                   
+
+            numComponentes = 0
+            listaCores = [Grafo.COR_BRANCO] * grafoTransposto.__numVertices
+            indexInicialBusca = escolherVerticeIncial()
+
+            while indexInicialBusca is not None:
+                numComponentes += 1
+                listaCores[indexInicialBusca] = Grafo.COR_CINZA
+                buscaEmProfundidadeAux(indexInicialBusca)
+                indexInicialBusca = escolherVerticeIncial()
+
+            return numComponentes
+
+        def marcarTempo(indexVertice):
+            ordemSaida.insert(0, indexVertice) # vertices inseridos em ordem decrescente de tempo de saida
+
+        def criarGrafoTransposto():
+            grafoTransposto = Grafo(numVertices = self.__numVertices, ehDirecionado = self.ehDirecionado)
+            grafoTransposto.__numArestas = self.__numArestas
+
+            # invertendo sentido das arestas
+            for i, vertice in enumerate(self.__LA):
+                    for idAresta, (idVizinho, pesoAresta) in vertice.vizinhos.items():
+                        grafoTransposto.__LA[idVizinho].vizinhos[idAresta] = (i, pesoAresta)
+                
+            return grafoTransposto
+
+        ordemSaida = []
+        grafoTransposto = criarGrafoTransposto()
+        self.buscaEmProfundidade(callbackPreto = marcarTempo)
+        numComponentes = dfsComponentes()
+        return numComponentes
 
     def arvoreDeLargura(self):
 
