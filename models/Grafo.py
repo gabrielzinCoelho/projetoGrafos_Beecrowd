@@ -88,31 +88,45 @@ class Grafo:
         return listaPais, listaDistancias
     
 
-    def buscaEmProfundidade(self, callbackPreto = None):
+    def buscaEmProfundidade(self, callbackPreto = None, callbackCinza = None):
+
+        encerrarBusca = None
 
         def buscaEmProfundidadeAux(verticeAtual):
-            for idAresta, (idVizinho, _) in self.__LA[verticeAtual].vizinhos.items():
+
+            nonlocal encerrarBusca
+
+            for idVizinho, _ in self.__LA[verticeAtual].vizinhos.values():
                 if listaCores[idVizinho] == Grafo.COR_BRANCO:
                     listaCores[idVizinho] = Grafo.COR_CINZA
-                    listaPais[idVizinho] = (idAresta, verticeAtual)
+                    # listaPais[idVizinho] = (idAresta, verticeAtual)
                     buscaEmProfundidadeAux(idVizinho)
+                    # ciclo encontrado
+                elif listaCores[idVizinho] == Grafo.COR_CINZA and callbackCinza is not None:
+                    encerrarBusca = callbackCinza()
+                    if encerrarBusca:
+                        return
             listaCores[verticeAtual] = Grafo.COR_PRETO
             if callbackPreto is not None:
                 callbackPreto(verticeAtual)
     
 
-        listaPais = [(-1, -1)] * self.__numVertices # idAresta, pai
+        # listaPais = [(-1, -1)] * self.__numVertices # idAresta, pai
         listaCores = [Grafo.COR_BRANCO] * self.__numVertices
 
         indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
 
         while indexInicialBusca is not None:
-            listaPais[indexInicialBusca] = (None, indexInicialBusca)
+            # listaPais[indexInicialBusca] = (None, indexInicialBusca)
             listaCores[indexInicialBusca] = Grafo.COR_CINZA
             buscaEmProfundidadeAux(indexInicialBusca)
-            indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
+
+            if encerrarBusca:
+                break
+            else:
+                indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
         
-        return listaPais
+        # return listaPais
 
     def arvoreDeLargura(self):
 
@@ -159,9 +173,18 @@ class Grafo:
 
         def adicionarOrdemExecucao(verticePreto):
             ordemExecucao.insert(0, verticePreto)
+        
+        def callbackCiclo():
+            nonlocal cicloEncontrado
+            cicloEncontrado = True
 
+        cicloEncontrado = False
         ordemExecucao = []
-        self.buscaEmProfundidade(callbackPreto = adicionarOrdemExecucao)
+        self.buscaEmProfundidade(callbackPreto = adicionarOrdemExecucao, callbackCinza = callbackCiclo)
+
+        if cicloEncontrado:
+            return [-1]
+        
         return ordemExecucao
     
     def AGM(self):
