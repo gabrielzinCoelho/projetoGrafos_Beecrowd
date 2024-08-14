@@ -41,6 +41,13 @@ class Grafo:
         self.__LA[v1].adicionarVizinho(idAresta = idAresta, idVizinho = v2, pesoAresta = pesoAresta)
         self.__LA[v2].adicionarVizinho(idAresta = idAresta, idVizinho = v1, pesoAresta = pesoAresta)
     
+
+    def __str__(self):
+        outputStr = ""
+        for i, vertice in enumerate(self.__LA):
+            outputStr += f"{i}) {str(vertice)}\n"
+        return outputStr
+
     @staticmethod
     def __escolherVerticeInicial(listaCores):
 
@@ -310,24 +317,30 @@ class Grafo:
     
     def fordFulkerson(self):
 
+        PAI_NULO = (-1, -1)
+
         def criarGrafoResidual():
             grafoResidual = copy.deepcopy(self)
 
+            novasArestas = []
+
             for i, vertice in enumerate(grafoResidual.__LA):
                     for idAresta, (idVizinho, _) in vertice.vizinhos.items():
-                        grafoResidual.__LA[idVizinho].vizinhos[idAresta] = (i, 0)
-
+                        novasArestas.append((idAresta, idVizinho, i))
+            
+            for idAresta, u, v in novasArestas:
+                grafoResidual.__LA[u].vizinhos[idAresta] = (v, 0)
             return grafoResidual
 
         def buscaCaminhoAumentante():
 
-            arestasPai = [-1] * grafoResidual.__numVertices # idAresta, pai
+            arestasPai = [PAI_NULO] * grafoResidual.__numVertices # idAresta, pai
             listaCores = [Grafo.COR_BRANCO] * grafoResidual.__numVertices
             # listaDistancias = [0] * self.__numVertices
                 
             filaVisita = [verticeOrigem]
             listaCores[verticeOrigem] = Grafo.COR_CINZA
-            arestasPai[verticeOrigem] = None
+            # arestasPai[verticeOrigem] = (None, verticeOrigem)
 
             destinoAlcancado = False
 
@@ -335,11 +348,11 @@ class Grafo:
                 verticeAtual = filaVisita.pop(0)
                 # novaDistancia = listaDistancias[verticeAtual] + 1
 
-                for idAresta, (idVizinho, _) in grafoResidual.__LA[verticeAtual].vizinhos.items():
-                    if listaCores[idVizinho] == Grafo.COR_BRANCO:
+                for idAresta, (idVizinho, capacidadeAresta) in grafoResidual.__LA[verticeAtual].vizinhos.items():
+                    if listaCores[idVizinho] == Grafo.COR_BRANCO and capacidadeAresta > 0:
                         filaVisita.append(idVizinho)
                         listaCores[idVizinho] = Grafo.COR_CINZA
-                        arestasPai[idVizinho] = idAresta
+                        arestasPai[idVizinho] = (idAresta, verticeAtual)
                         # listaDistancias[idVizinho] = novaDistancia
 
                         # primeiro vertice a encontrar o destino encerra a busca
@@ -353,9 +366,9 @@ class Grafo:
         
         def atualizaFluxoRede():
 
-            def atualizaCapacidade(u, v, fluxoAtual):
+            def atualizaCapacidade(u, v, fluxo):
                 capacidadeAntiga = grafoResidual.__LA[u].vizinhos[idAresta][1]
-                grafoResidual.__LA[u].vizinhos[idAresta] = (v, capacidadeAntiga + fluxoAtual)
+                grafoResidual.__LA[u].vizinhos[idAresta] = (v, capacidadeAntiga + fluxo)
             
             INFINITO = 1000000000
 
@@ -365,15 +378,19 @@ class Grafo:
 
             caminhoAumentante = [] # u, v, idAresta (u, v)
 
-            if arestasPai[verticeDestino] == -1:
+            if arestasPai[verticeDestino] == PAI_NULO:
                 return 0
             
+            # print(f"arestasPai: {arestasPai}")
+
             while verticeAtual != verticeOrigem:
-                idArestaPai = arestasPai[verticeAtual]
-                pai, capacidadeAresta = grafoResidual.__LA[verticeAtual].vizinhos[idArestaPai]
+                idArestaPai, pai = arestasPai[verticeAtual]
+                capacidadeAresta = grafoResidual.__LA[pai].vizinhos[idArestaPai][1]
 
                 fluxoAtual = min(fluxoAtual, capacidadeAresta)
                 caminhoAumentante.append((pai, verticeAtual, idArestaPai))
+
+                # print(f"fluxoAtual: {fluxoAtual}")
 
                 verticeAtual = pai
 
@@ -381,6 +398,8 @@ class Grafo:
             for u, v, idAresta in caminhoAumentante:
                 atualizaCapacidade(u, v, -fluxoAtual)
                 atualizaCapacidade(v, u, fluxoAtual)
+            
+            # print(grafoResidual)
             
             return fluxoAtual
 

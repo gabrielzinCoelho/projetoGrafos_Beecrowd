@@ -5,3 +5,6 @@ class Vertice:
     
     def adicionarVizinho(self, *, idAresta, idVizinho, pesoAresta):
         self.vizinhos[idAresta] = (idVizinho, pesoAresta)
+
+    def __str__(self):
+        return str(self.vizinhos)
