@@ -21,7 +21,7 @@ class InterfaceGrafo:
     
     def __defineOperacoes(self):
         self.__dictOperacoes = {
-            0: None, # Verificar (Conexo)
+            0: self.__verificarEhConexo, # Verificar (Conexo)
             1: None, # Verificar (Bipartido)
             2: None, # Verificar (Euleriano)
             3: None, # Verificar (Possui ciclo)
@@ -47,6 +47,10 @@ class InterfaceGrafo:
         except KeyError:
             return # operacao invalida
     
+    def __verificarEhConexo(self):
+        ehConexo = self.__grafo.ehConexo()
+        print(ehConexo)
+
     def __gerarArvoreLargura(self):
         arvoreDeLargura = self.__grafo.arvoreDeLargura()
         print(*arvoreDeLargura, sep = ' ')

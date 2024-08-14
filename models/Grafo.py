@@ -57,35 +57,24 @@ class Grafo:
         return None
     
     
-    def buscaEmLargura(self):
+    def verticesEncontradosBfs(self):
 
-        listaPais = [(-1, -1)] * self.__numVertices # idAresta, pai
         listaCores = [Grafo.COR_BRANCO] * self.__numVertices
-        listaDistancias = [0] * self.__numVertices
+     
+        filaVisita = [0]
+        listaCores[0] = Grafo.COR_CINZA
 
-        indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
-        
-        while indexInicialBusca is not None:
-            
-            filaVisita = [indexInicialBusca]
-            listaCores[indexInicialBusca] = Grafo.COR_CINZA
-            listaPais[indexInicialBusca] = (None, indexInicialBusca)
+        verticesEncontrados = 1
 
-            while filaVisita:
-                verticeAtual = filaVisita.pop(0)
-                novaDistancia = listaDistancias[verticeAtual] + 1
+        while filaVisita:
+            verticeAtual = filaVisita.pop(0)
 
-                for idAresta, (idVizinho, _) in self.__LA[verticeAtual].vizinhos.items():
-                    if listaCores[idVizinho] == Grafo.COR_BRANCO:
-                        filaVisita.append(idVizinho)
-                        listaCores[idVizinho] = Grafo.COR_CINZA
-                        listaPais[idVizinho] = (idAresta, verticeAtual)
-                        listaDistancias[idVizinho] = novaDistancia
-                listaCores[verticeAtual] = Grafo.COR_PRETO
-            
-            indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
-        
-        return listaPais, listaDistancias
+            for idVizinho, _ in self.__LA[verticeAtual].vizinhos.values():
+                if listaCores[idVizinho] == Grafo.COR_BRANCO:
+                    filaVisita.append(idVizinho)
+                    listaCores[idVizinho] = Grafo.COR_CINZA
+                    verticesEncontrados += 1
+        return verticesEncontrados
     
 
     def buscaEmProfundidade(self, callbackPreto = None, callbackCinza = None):
@@ -127,6 +116,23 @@ class Grafo:
                 indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
         
         # return listaPais
+
+    def ehConexo(self):
+
+        def criarGrafoNaoDirecionado():
+            grafoNaoDirecionado = copy.deepcopy(self)
+
+            for i, vertice in enumerate(self.__LA):
+                    for idAresta, (idVizinho, _) in vertice.vizinhos.items():
+                        grafoNaoDirecionado.__LA[idVizinho].vizinhos[idAresta] = (i, 0)
+                
+            return grafoNaoDirecionado
+
+        # conectividade fraca
+        grafoBusca = self if not self.ehDirecionado else criarGrafoNaoDirecionado()
+
+        return int((grafoBusca.verticesEncontradosBfs() == self.__numVertices))
+            
 
     def arvoreDeLargura(self):
 
