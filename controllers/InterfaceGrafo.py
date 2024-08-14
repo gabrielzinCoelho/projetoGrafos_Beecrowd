@@ -24,7 +24,7 @@ class InterfaceGrafo:
             0: self.__verificarEhConexo, # Verificar (Conexo)
             1: None, # Verificar (Bipartido)
             2: None, # Verificar (Euleriano)
-            3: None, # Verificar (Possui ciclo)
+            3: self.__verificarCiclo, # Verificar (Possui ciclo)
             4: None, # Listar (Componentes conexas)
             5: None, # Listar (Componentes fortemente conexas)
             6: self.__listarArticulacoes, # Listar ( Vértices de Articulacao)
@@ -50,6 +50,10 @@ class InterfaceGrafo:
     def __verificarEhConexo(self):
         ehConexo = self.__grafo.ehConexo()
         print(ehConexo)
+    
+    def __verificarCiclo(self):
+        possuiCiclo = self.__grafo.possuiCiclo()
+        print(possuiCiclo)
 
     def __gerarArvoreLargura(self):
         arvoreDeLargura = self.__grafo.arvoreDeLargura()

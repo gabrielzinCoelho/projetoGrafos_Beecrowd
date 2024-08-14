@@ -54,44 +54,23 @@ class Grafo:
         for indexVertice, corVertice in enumerate(listaCores):
             if corVertice == Grafo.COR_BRANCO:
                 return indexVertice
-        return None
-    
-    
-    def verticesEncontradosBfs(self):
-
-        listaCores = [Grafo.COR_BRANCO] * self.__numVertices
-     
-        filaVisita = [0]
-        listaCores[0] = Grafo.COR_CINZA
-
-        verticesEncontrados = 1
-
-        while filaVisita:
-            verticeAtual = filaVisita.pop(0)
-
-            for idVizinho, _ in self.__LA[verticeAtual].vizinhos.values():
-                if listaCores[idVizinho] == Grafo.COR_BRANCO:
-                    filaVisita.append(idVizinho)
-                    listaCores[idVizinho] = Grafo.COR_CINZA
-                    verticesEncontrados += 1
-        return verticesEncontrados
-    
+        return None    
 
     def buscaEmProfundidade(self, callbackPreto = None, callbackCinza = None):
 
-        encerrarBusca = None
+        encerrarBusca = False
 
         def buscaEmProfundidadeAux(verticeAtual):
 
             nonlocal encerrarBusca
 
-            for idVizinho, _ in self.__LA[verticeAtual].vizinhos.values():
+            for idAresta, (idVizinho, _) in self.__LA[verticeAtual].vizinhos.items():
                 if listaCores[idVizinho] == Grafo.COR_BRANCO:
                     listaCores[idVizinho] = Grafo.COR_CINZA
-                    # listaPais[idVizinho] = (idAresta, verticeAtual)
+                    listaPais[idVizinho] = (idAresta, verticeAtual)
                     buscaEmProfundidadeAux(idVizinho)
                     # ciclo encontrado
-                elif listaCores[idVizinho] == Grafo.COR_CINZA and callbackCinza is not None:
+                elif listaCores[idVizinho] == Grafo.COR_CINZA and idVizinho != listaPais[verticeAtual][1] and callbackCinza is not None:
                     encerrarBusca = callbackCinza()
                     if encerrarBusca:
                         return
@@ -100,13 +79,13 @@ class Grafo:
                 callbackPreto(verticeAtual)
     
 
-        # listaPais = [(-1, -1)] * self.__numVertices # idAresta, pai
+        listaPais = [(-1, -1)] * self.__numVertices # idAresta, pai
         listaCores = [Grafo.COR_BRANCO] * self.__numVertices
 
         indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
 
         while indexInicialBusca is not None:
-            # listaPais[indexInicialBusca] = (None, indexInicialBusca)
+            listaPais[indexInicialBusca] = (None, indexInicialBusca)
             listaCores[indexInicialBusca] = Grafo.COR_CINZA
             buscaEmProfundidadeAux(indexInicialBusca)
 
@@ -118,6 +97,25 @@ class Grafo:
         # return listaPais
 
     def ehConexo(self):
+
+        def verticesEncontradosBfs(grafo):
+
+            listaCores = [Grafo.COR_BRANCO] * grafo.__numVertices
+        
+            filaVisita = [0]
+            listaCores[0] = Grafo.COR_CINZA
+
+            verticesEncontrados = 1
+
+            while filaVisita:
+                verticeAtual = filaVisita.pop(0)
+
+                for idVizinho, _ in grafo.__LA[verticeAtual].vizinhos.values():
+                    if listaCores[idVizinho] == Grafo.COR_BRANCO:
+                        filaVisita.append(idVizinho)
+                        listaCores[idVizinho] = Grafo.COR_CINZA
+                        verticesEncontrados += 1
+            return verticesEncontrados
 
         def criarGrafoNaoDirecionado():
             grafoNaoDirecionado = copy.deepcopy(self)
@@ -131,7 +129,19 @@ class Grafo:
         # conectividade fraca
         grafoBusca = self if not self.ehDirecionado else criarGrafoNaoDirecionado()
 
-        return int((grafoBusca.verticesEncontradosBfs() == self.__numVertices))
+        return int((verticesEncontradosBfs(grafoBusca) == self.__numVertices))
+    
+    def possuiCiclo(self):
+
+        def callbackCiclo():
+            nonlocal cicloEncontrado
+            cicloEncontrado = True
+            return True # encerrar busca
+
+        cicloEncontrado = False
+
+        self.buscaEmProfundidade(callbackCinza = callbackCiclo)
+        return int(cicloEncontrado)
             
 
     def arvoreDeLargura(self):
@@ -183,6 +193,7 @@ class Grafo:
         def callbackCiclo():
             nonlocal cicloEncontrado
             cicloEncontrado = True
+            return True # encerrar busca
 
         cicloEncontrado = False
         ordemExecucao = []
