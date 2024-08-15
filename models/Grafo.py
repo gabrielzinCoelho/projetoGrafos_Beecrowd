@@ -69,11 +69,13 @@ class Grafo:
                     listaCores[idVizinho] = Grafo.COR_CINZA
                     listaPais[idVizinho] = (idAresta, verticeAtual)
                     buscaEmProfundidadeAux(idVizinho)
-                    # ciclo encontrado
+                    
+                # ciclo encontrado
                 elif listaCores[idVizinho] == Grafo.COR_CINZA and idVizinho != listaPais[verticeAtual][1] and callbackCinza is not None:
                     encerrarBusca = callbackCinza()
                     if encerrarBusca:
                         return
+            # vertice explorado (callback preto)                    
             listaCores[verticeAtual] = Grafo.COR_PRETO
             if callbackPreto is not None:
                 callbackPreto(verticeAtual)
@@ -81,10 +83,12 @@ class Grafo:
 
         listaPais = [(-1, -1)] * self.__numVertices # idAresta, pai
         listaCores = [Grafo.COR_BRANCO] * self.__numVertices
+        numComponentes = 0
 
         indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
 
         while indexInicialBusca is not None:
+            numComponentes += 1
             listaPais[indexInicialBusca] = (None, indexInicialBusca)
             listaCores[indexInicialBusca] = Grafo.COR_CINZA
             buscaEmProfundidadeAux(indexInicialBusca)
@@ -94,7 +98,7 @@ class Grafo:
             else:
                 indexInicialBusca = Grafo.__escolherVerticeInicial(listaCores)
         
-        # return listaPais
+        return numComponentes
 
     def ehConexo(self):
 
@@ -168,6 +172,11 @@ class Grafo:
         
         return int(grauBalanceadoD())
     
+    def componentesConexas(self):
+
+        numComponentes = self.buscaEmProfundidade()
+        return numComponentes
+
     def componentesFortementeConexas(self):
 
         def dfsComponentes():

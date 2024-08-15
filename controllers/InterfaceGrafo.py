@@ -25,8 +25,8 @@ class InterfaceGrafo:
             1: lambda : print('x'), # Verificar (Bipartido)
             2: self.__verificarEhEuleriano, # Verificar (Euleriano)
             3: self.__verificarCiclo, # Verificar (Possui ciclo)
-            4: lambda : print('x'), # Listar (Componentes conexas)
-            5: self.__listarCFC, # Listar (Componentes fortemente conexas)
+            4: self.__listarCConexas, # Listar (Componentes conexas)
+            5: self.__listarCFConexas, # Listar (Componentes fortemente conexas)
             6: self.__listarArticulacoes, # Listar ( Vértices de Articulacao)
             7: self.__listarPontes, # Listar (Identificador das arestas ponte)
             8: self.__gerarArvoreProfundidade, # Gerar (Árvore de profundidade)
@@ -59,7 +59,13 @@ class InterfaceGrafo:
         ehEuleriano = self.__grafo.ehEuleriano()
         print(ehEuleriano)
     
-    def __listarCFC(self):
+    def __listarCConexas(self):
+        if self.__grafo.ehDirecionado:
+            print(-1)
+        else:
+            print(self.__grafo.componentesConexas())
+
+    def __listarCFConexas(self):
         if not self.__grafo.ehDirecionado:
             print(-1)
         else:
@@ -92,8 +98,11 @@ class InterfaceGrafo:
             print(-1)
         else:
             articulacoes, _ = self.__grafo.tarjan()
-            articulacoesOrdenadas = sorted(articulacoes)
-            print(*articulacoesOrdenadas, sep = ' ')
+            if articulacoes:
+                articulacoesOrdenadas = sorted(articulacoes)
+                print(*articulacoesOrdenadas, sep = ' ')
+            else:
+                print(-1)
     
     def __listarPontes(self):
         if self.__grafo.ehDirecionado:
