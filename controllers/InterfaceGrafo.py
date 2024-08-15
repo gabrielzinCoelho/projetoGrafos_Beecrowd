@@ -90,8 +90,8 @@ class InterfaceGrafo:
         if self.__grafo.ehDirecionado:
             print(-1)
         else:
-            AGM = self.__grafo.AGM()
-            print(*AGM, sep = ' ')
+            custoAGM = self.__grafo.AGM()
+            print(custoAGM)
 
     def __listarArticulacoes(self):
         if self.__grafo.ehDirecionado:

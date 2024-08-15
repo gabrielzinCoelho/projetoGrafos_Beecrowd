@@ -295,7 +295,7 @@ class Grafo:
                     heapq.heappush(heapArestas, (pesoAresta, vizinho, idAresta))
 
         adicionadoAGM = [False for _ in range(self.__numVertices)]
-        AGM = [] # id_arestas que pertencem à AGM
+        # AGM = [] # id_arestas que pertencem à AGM
         heapArestas = []
 
         custo = 0
@@ -303,12 +303,12 @@ class Grafo:
         atualizaHeap(0)
 
         while heapArestas:
-            c, vertice, idAresta = heapq.heappop(heapArestas)
+            c, vertice, _ = heapq.heappop(heapArestas)
             if not adicionadoAGM[vertice]:
-                AGM.append(idAresta)
+                # AGM.append(idAresta)
                 atualizaHeap(vertice)
                 custo += c
-        return AGM
+        return c
     
 
     def tarjan(self):
