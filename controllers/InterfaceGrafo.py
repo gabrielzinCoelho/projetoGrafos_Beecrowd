@@ -90,7 +90,7 @@ class InterfaceGrafo:
         if self.__grafo.ehDirecionado:
             print(-1)
         else:
-            custoAGM = self.__grafo.AGM()
+            custoAGM = self.__grafo.kruskall()
             print(custoAGM)
 
     def __listarArticulacoes(self):

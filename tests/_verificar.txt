@@ -1,3 +1,35 @@
 grafo_9.txt - 13 (fluxo máximo)
-grafo_10.txt - 5 (CFC)
-grafo_6.txt - 10 (AGM) 
+ - 5 (CFC)
+grafo_6.txt - 10 (AGM)
+
+0 -> OK
+
+1 -> IMP
+
+2 -> OK
+
+3 -> OK
+
+4 -> OK
+
+5 -> grafo_10.txt (129 -> 287) / grafo_12.txt (4 -> 7) 
+
+6 -> grafo_0.txt (0 -> -1) / grafo_3.txt (0 37 -> 37) / grafo_4.txt (0 -> -1) / grafo_7.txt (0 5 7 7 -> 5 7)
+
+7 -> grafo_4.txt (-1 -> 0)
+
+8 -> OK
+
+9 -> OK
+
+10 -> OK
+
+11 ->
+
+12 ->
+
+13 ->
+
+14 ->
+
+15

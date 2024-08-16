@@ -18,6 +18,8 @@ class Grafo:
             Vertice(vizinhos = {}) for _ in range(numVertices)
         ]
 
+        self.__listaDeIncidencia = list(arestas)
+
         if ehDirecionado:
             arestas.sort(
                 key = lambda aresta : aresta[2] # ordenando arestas para priorizar ordem lexicográfica (padronizar saída beecrowd)
@@ -130,7 +132,6 @@ class Grafo:
                 
             return grafoNaoDirecionado
 
-        # conectividade fraca
         grafoBusca = self if not self.ehDirecionado else criarGrafoNaoDirecionado()
 
         return int((verticesEncontradosBfs(grafoBusca) == self.__numVertices))
@@ -165,6 +166,10 @@ class Grafo:
                     grauEntrada[idVizinho] += 1
             
             return grauEntrada == grauSaida
+
+        # verifica conectividade
+        if not self.ehConexo():
+            return 0
 
         # todos vertices com grau par
         if not self.ehDirecionado:
@@ -286,7 +291,7 @@ class Grafo:
         
         return ordemExecucao
     
-    def AGM(self):
+    def prim(self):
 
         def atualizaHeap(indexVertice):
             adicionadoAGM[indexVertice] = True
@@ -311,6 +316,68 @@ class Grafo:
         return c
     
 
+    def kruskall(self):
+
+        class UFDS:
+            def __init__(self, numVertices):
+                self.__rank = [0] * numVertices
+                self.__pai = [i for i in range(numVertices)]
+
+            def buscaPai(self, indexVertice):
+                
+                verticeAtual = indexVertice
+                verticesComponente = []
+
+                #rotulo da componente alcancado
+                while self.__pai[verticeAtual] != verticeAtual:
+                    verticeAtual = self.__pai[verticeAtual]
+                    verticesComponente.append(verticeAtual)
+                
+                # compressao da arvore
+                for v in verticesComponente:    
+                    self.__pai[v] = verticeAtual
+
+                # rotulo da componente
+                return verticeAtual
+            
+            def mesmaComponente(self, v1, v2):
+                return self.buscaPai(v1) == self.buscaPai(v2)
+            
+            def unificaComponente(self, v1, v2):
+
+                # if self.mesmaComponente(v1, v2):
+                #     return
+                
+                pai_v1 = self.buscaPai(v1)
+                pai_v2 = self.buscaPai(v2)
+
+                if self.__rank[pai_v1] == self.__rank[pai_v2]:
+                    self.__pai[pai_v2] = pai_v1
+                    self.__rank[pai_v1] += 1
+                else:
+                    menorArvore, maiorArvore = (pai_v1, pai_v2) if self.__rank[pai_v1] < self.__rank[pai_v2] else (pai_v2, pai_v1)
+                    self.__pai[menorArvore] = maiorArvore
+
+        ufds = UFDS(self.__numVertices)
+        arestas = sorted(self.__listaDeIncidencia, key = lambda aresta : aresta[3]) # ordena arestas pelo peso
+        custoAGM = 0
+
+        totalArestas = len(arestas)
+        indexAresta = 0
+        numArestasAGM = 0
+        limiteArestas = self.__numVertices - 1
+        
+        while numArestasAGM < limiteArestas and indexAresta < totalArestas:
+            _, v1, v2, pesoAresta = arestas[indexAresta]
+            if not ufds.mesmaComponente(v1, v2):
+                ufds.unificaComponente(v1, v2)
+                custoAGM += pesoAresta
+                numArestasAGM += 1
+
+            indexAresta += 1
+
+        return custoAGM
+
     def tarjan(self):
 
         def naoVisitado(indexVertice):
@@ -331,9 +398,11 @@ class Grafo:
 
                     tarjanAux(indexVertice = idVizinho)
                     low[indexVertice] = min(low[indexVertice], low[idVizinho])
-
+                    
+                    # caso 1 articulacao: vertice raiz da arvore de busca
                     if ehRaiz:
                         numFilhosRaiz += 1
+                    # caso 2 articulacao: vertice nn eh raiz da arvore 
                     elif low[idVizinho] >= tempoDescoberta[indexVertice]:
                         articulacoes.add(indexVertice)
 
