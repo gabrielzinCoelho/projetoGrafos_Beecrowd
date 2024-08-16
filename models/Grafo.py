@@ -513,66 +513,54 @@ class Grafo:
         def criarGrafoResidual():
             grafoResidual = copy.deepcopy(self)
 
-            novasArestas = []
-
-            for i, vertice in enumerate(grafoResidual.__LA):
+            for i, vertice in enumerate(self.__LA):
                     for idAresta, (idVizinho, _) in vertice.vizinhos.items():
-                        novasArestas.append((idAresta, idVizinho, i))
-            
-            for idAresta, u, v in novasArestas:
-                grafoResidual.__LA[u].vizinhos[idAresta] = (v, 0)
+                        grafoResidual.__LA[idVizinho].vizinhos[idAresta] = (i, 0)
+
             return grafoResidual
 
         def buscaCaminhoAumentante():
 
             arestasPai = [PAI_NULO] * grafoResidual.__numVertices # idAresta, pai
             listaCores = [Grafo.COR_BRANCO] * grafoResidual.__numVertices
-            # listaDistancias = [0] * self.__numVertices
                 
             filaVisita = [verticeOrigem]
             listaCores[verticeOrigem] = Grafo.COR_CINZA
-            # arestasPai[verticeOrigem] = (None, verticeOrigem)
 
             destinoAlcancado = False
 
             while filaVisita and not destinoAlcancado:
                 verticeAtual = filaVisita.pop(0)
-                # novaDistancia = listaDistancias[verticeAtual] + 1
 
                 for idAresta, (idVizinho, capacidadeAresta) in grafoResidual.__LA[verticeAtual].vizinhos.items():
                     if listaCores[idVizinho] == Grafo.COR_BRANCO and capacidadeAresta > 0:
                         filaVisita.append(idVizinho)
                         listaCores[idVizinho] = Grafo.COR_CINZA
                         arestasPai[idVizinho] = (idAresta, verticeAtual)
-                        # listaDistancias[idVizinho] = novaDistancia
 
                         # primeiro vertice a encontrar o destino encerra a busca
                         if idVizinho == verticeDestino:
                             destinoAlcancado = True
                             break
 
-                # listaCores[verticeAtual] = Grafo.COR_PRETO
-
             return arestasPai
         
         def atualizaFluxoRede():
 
-            def atualizaCapacidade(u, v, fluxo):
-                capacidadeAntiga = grafoResidual.__LA[u].vizinhos[idAresta][1]
-                grafoResidual.__LA[u].vizinhos[idAresta] = (v, capacidadeAntiga + fluxo)
+            def atualizaCapacidade(v1, v2, idArestaFluxo, fluxoAresta):
+                capacidadeAntiga = grafoResidual.__LA[v1].vizinhos[idArestaFluxo][1]
+                grafoResidual.__LA[v1].vizinhos[idArestaFluxo] = (v2, capacidadeAntiga + fluxoAresta)
             
-            INFINITO = 1000000000
-
-            arestasPai = buscaCaminhoAumentante()
-            verticeAtual = verticeDestino
-            fluxoAtual = INFINITO
-
-            caminhoAumentante = [] # u, v, idAresta (u, v)
+            arestasPai = buscaCaminhoAumentante()    
 
             if arestasPai[verticeDestino] == PAI_NULO:
                 return 0
             
-            # print(f"arestasPai: {arestasPai}")
+            INFINITO = 1000000000
+            verticeAtual = verticeDestino
+            fluxoAtual = INFINITO
+
+            caminhoAumentante = [] # u, v, idAresta (u, v)
 
             while verticeAtual != verticeOrigem:
                 idArestaPai, pai = arestasPai[verticeAtual]
@@ -581,16 +569,12 @@ class Grafo:
                 fluxoAtual = min(fluxoAtual, capacidadeAresta)
                 caminhoAumentante.append((pai, verticeAtual, idArestaPai))
 
-                # print(f"fluxoAtual: {fluxoAtual}")
-
                 verticeAtual = pai
 
             # atualizando valores de capacidade para conservar fluxo
             for u, v, idAresta in caminhoAumentante:
-                atualizaCapacidade(u, v, -fluxoAtual)
-                atualizaCapacidade(v, u, fluxoAtual)
-            
-            # print(grafoResidual)
+                atualizaCapacidade(u, v, idAresta, -fluxoAtual)
+                atualizaCapacidade(v, u, idAresta, fluxoAtual)
             
             return fluxoAtual
 
@@ -602,10 +586,10 @@ class Grafo:
         fluxoEncerrado = False
 
         while not fluxoEncerrado:
-            fluxoAtual = atualizaFluxoRede()
-            if not fluxoAtual:
+            fluxo = atualizaFluxoRede()
+            if fluxo <= 0:
                 fluxoEncerrado = True
             else:
-                fluxoMaximo += fluxoAtual
+                fluxoMaximo += fluxo
         return fluxoMaximo
         

@@ -24,12 +24,12 @@ grafo_6.txt - 10 (AGM)
 
 10 -> OK
 
-11 ->
+11 -> OK
 
-12 ->
+12 -> IMP
 
-13 ->
+13 -> grafo_12.txt (278 -> 154) / grafo_9.txt (179 -> 104) / grafo_1.txt (6 -> 6)
 
-14 ->
+14 -> IMP
 
-15
+15 -> Extra

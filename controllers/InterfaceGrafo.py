@@ -117,5 +117,8 @@ class InterfaceGrafo:
         print(*trilhaEuleriana, sep = ' ')
     
     def __gerarFluxoMaximo(self):
-        fluxoMaximo = self.__grafo.fordFulkerson()
-        print(fluxoMaximo)
+        if not self.__grafo.ehDirecionado:
+            print(-1)
+        else:
+            fluxoMaximo = self.__grafo.fordFulkerson()
+            print(fluxoMaximo)
