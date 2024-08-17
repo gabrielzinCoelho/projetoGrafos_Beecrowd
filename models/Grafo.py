@@ -102,6 +102,43 @@ class Grafo:
         
         return numComponentes
 
+    def ehBipartido(self):
+
+        NAO_COLORIDO = -1
+        COR_A = 0
+        COR_B = 1
+        CORES = COR_B, COR_A
+
+        def corOposta(cor):
+            return CORES[cor]
+
+        def bfsColorida(origem):
+            
+            filaVertices = [origem]
+
+            while filaVertices:
+                verticeAtual = filaVertices.pop(0)
+                corVizinho = corOposta(listaCores[verticeAtual])
+                for vizinho, _ in self.__LA[verticeAtual].vizinhos.values():
+
+                    if listaCores[vizinho] == NAO_COLORIDO:
+                        filaVertices.append(vizinho)
+                        listaCores[vizinho] = corVizinho
+
+                    elif listaCores[vizinho] == listaCores[verticeAtual]:
+                        return False
+            return True
+
+        listaCores = [NAO_COLORIDO] * self.__numVertices
+
+        for indexVertice in range(self.__numVertices): 
+            if listaCores[indexVertice] == NAO_COLORIDO:
+                if not bfsColorida(indexVertice):
+                    return 0
+        return 1
+
+
+
     def ehConexo(self):
 
         def verticesEncontradosBfs(grafo):

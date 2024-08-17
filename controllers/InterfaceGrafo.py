@@ -22,7 +22,7 @@ class InterfaceGrafo:
     def __defineOperacoes(self):
         self.__dictOperacoes = {
             0: self.__verificarEhConexo, # Verificar (Conexo)
-            1: lambda : print('x'), # Verificar (Bipartido)
+            1: self.__verificarBipartido, # Verificar (Bipartido)
             2: self.__verificarEhEuleriano, # Verificar (Euleriano)
             3: self.__verificarCiclo, # Verificar (Possui ciclo)
             4: self.__listarCConexas, # Listar (Componentes conexas)
@@ -50,6 +50,10 @@ class InterfaceGrafo:
     def __verificarEhConexo(self):
         ehConexo = self.__grafo.ehConexo()
         print(ehConexo)
+    
+    def __verificarBipartido(self):
+        ehBipartido = self.__grafo.ehBipartido()
+        print(ehBipartido)
     
     def __verificarCiclo(self):
         possuiCiclo = self.__grafo.possuiCiclo()
