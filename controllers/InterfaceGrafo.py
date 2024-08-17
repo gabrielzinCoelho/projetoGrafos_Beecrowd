@@ -33,7 +33,7 @@ class InterfaceGrafo:
             9: self.__gerarArvoreLargura, # Gerar (Árvore de largura)
             10: self.__arvoreGeradoraMinima, # Gerar (Árvore geradora mínima)
             11: self.__ordemTopologica, # Gerar (Ordem topológica)
-            12: lambda : print('x'), # Gerar (Valor do caminho mínimo entre dois vértices)
+            12: self.__gerarCaminhoMinimo, # Gerar (Valor do caminho mínimo entre dois vértices)
             13: self.__gerarFluxoMaximo, # Gerar (Valor do fluxo máximo)
             14: lambda : print('x'), # Gerar (Fecho transitivo)
             15: self.__listarTrilhaEuleriana, # Listar (Uma trilha Euleriana)
@@ -122,3 +122,7 @@ class InterfaceGrafo:
         else:
             fluxoMaximo = self.__grafo.fordFulkerson()
             print(fluxoMaximo)
+    
+    def __gerarCaminhoMinimo(self):
+        valorCaminhoMinimo = self.__grafo.dijkstra()
+        print(valorCaminhoMinimo)

@@ -584,3 +584,38 @@ class Grafo:
                 fluxoMaximo += fluxo
         return fluxoMaximo
         
+
+    def dijkstra(self):
+
+        INDEFINIDO = 1000000000000
+
+        def relaxar(u, v, pesoAresta):
+            novaEstimativa = listaDistancias[u] + pesoAresta
+            if listaDistancias[v] > novaEstimativa:
+                listaDistancias[v] = novaEstimativa
+                return True
+            return False
+        
+        origem = 0
+        destino = self.__numVertices - 1
+
+        explorado = [False] * self.__numVertices
+        listaDistancias = [INDEFINIDO] * self.__numVertices
+        
+        heap = [(0, origem)]
+        listaDistancias[origem] = 0
+
+        while heap:
+
+            _, menorEstimativa = heapq.heappop(heap)
+
+            if not explorado[menorEstimativa]:
+
+                if menorEstimativa == destino:
+                    return listaDistancias[menorEstimativa]
+
+                explorado[menorEstimativa] = True
+
+                for vizinho, pesoAresta in self.__LA[menorEstimativa].vizinhos.values():
+                    if relaxar(menorEstimativa, vizinho, pesoAresta):
+                        heapq.heappush(heap, (listaDistancias[vizinho], vizinho))

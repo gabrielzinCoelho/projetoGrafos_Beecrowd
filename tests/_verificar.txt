@@ -12,7 +12,7 @@ grafo_6.txt - 10 (AGM)
 
 4 -> OK
 
-5 -> grafo_10.txt (129 -> 287) / grafo_12.txt (4 -> 7) 
+5 -> grafo_10.txt (129 -> 287) / grafo_12.txt (4 -> 7) * GAB ERRAD0
 
 6 -> grafo_0.txt (0 -> -1) / grafo_3.txt (0 37 -> 37) / grafo_4.txt (0 -> -1) / grafo_7.txt (0 5 7 7 -> 5 7)
 
