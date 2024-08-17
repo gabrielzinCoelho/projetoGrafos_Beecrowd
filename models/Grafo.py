@@ -361,20 +361,11 @@ class Grafo:
         ufds = UFDS(self.__numVertices)
         arestas = sorted(self.__listaDeIncidencia, key = lambda aresta : aresta[3]) # ordena arestas pelo peso
         custoAGM = 0
-
-        totalArestas = len(arestas)
-        indexAresta = 0
-        numArestasAGM = 0
-        limiteArestas = self.__numVertices - 1
         
-        while numArestasAGM < limiteArestas and indexAresta < totalArestas:
-            _, v1, v2, pesoAresta = arestas[indexAresta]
+        for _, v1, v2, pesoAresta in arestas:
             if not ufds.mesmaComponente(v1, v2):
                 ufds.unificaComponente(v1, v2)
                 custoAGM += pesoAresta
-                numArestasAGM += 1
-
-            indexAresta += 1
 
         return custoAGM
 
