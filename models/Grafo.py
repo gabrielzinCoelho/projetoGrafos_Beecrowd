@@ -1,3 +1,5 @@
+# Gabriel Coelho Costa - 10A (202310172)
+
 import heapq
 import copy
 
@@ -5,7 +7,8 @@ from .Vertice import Vertice
 
 class Grafo:
 
-    COR_BRANCO = 0
+    # cores utilizadas para identificar vertices
+    COR_BRANCO = 0 
     COR_CINZA = 1
     COR_PRETO = 2
 
@@ -14,20 +17,23 @@ class Grafo:
         self.__numArestas = len(arestas)
         self.ehDirecionado = ehDirecionado
         self.__LA = [
-            # Vertice(id = i, vizinhos=[]) for i in range(numVertices)
             Vertice(vizinhos = {}) for _ in range(numVertices)
         ]
 
+        # lista de incidencia, utilizada em algoritmos como kruskall
         self.__listaDeIncidencia = list(arestas)
 
-        if ehDirecionado:
+        # ordenando arestas para priorizar ordem lexicográfica (padronizar saída beecrowd)
+
+        if ehDirecionado: # ordenacao pelo vertice de chegada
             arestas.sort(
-                key = lambda aresta : aresta[2] # ordenando arestas para priorizar ordem lexicográfica (padronizar saída beecrowd)
+                key = lambda aresta : aresta[2]
             )
             adicionarAresta = self.__adicionarArestasD
-        else:
+
+        else: # ordenacao pelo vertice de chegada e desempate pelo vertice de saida (ambos vertices com vizinhos ordenados)
             arestas.sort(
-                key = lambda aresta : (aresta[2], aresta[1]) # ordenando arestas para priorizar ordem lexicográfica (padronizar saída beecrowd)
+                key = lambda aresta : (aresta[2], aresta[1]) 
             )
             adicionarAresta = self.__adicionarArestasND
 
@@ -43,13 +49,14 @@ class Grafo:
         self.__LA[v1].adicionarVizinho(idAresta = idAresta, idVizinho = v2, pesoAresta = pesoAresta)
         self.__LA[v2].adicionarVizinho(idAresta = idAresta, idVizinho = v1, pesoAresta = pesoAresta)
     
-
+    # fins de depuracao
     def __str__(self):
         outputStr = ""
         for i, vertice in enumerate(self.__LA):
             outputStr += f"{i}) {str(vertice)}\n"
         return outputStr
 
+    # metodo de classe que busca a primeira ocorrencia de um vertice nao explorado
     @staticmethod
     def __escolherVerticeInicial(listaCores):
 
@@ -58,6 +65,10 @@ class Grafo:
                 return indexVertice
         return None    
 
+    # DFS com personalizacao por callbacks, retorna numero de componentesEncontradas para GND
+    # callbackPreto -> invocada quando vizinhanca do vertice é totalmente explorada
+    # callbackCinza -> quando um vertice cinza eh encontrado na busca (e nao eh o pai), util para deteccao de ciclos
+    #                   se True eh retornado, a busca eh encerrada (algoritmos nao tolerantes a ciclos)
     def buscaEmProfundidade(self, callbackPreto = None, callbackCinza = None):
 
         encerrarBusca = False
@@ -72,17 +83,18 @@ class Grafo:
                     listaPais[idVizinho] = (idAresta, verticeAtual)
                     buscaEmProfundidadeAux(idVizinho)
                     
-                # ciclo encontrado
+                # ciclo encontrado (callbackCinza)
                 elif listaCores[idVizinho] == Grafo.COR_CINZA and idVizinho != listaPais[verticeAtual][1] and callbackCinza is not None:
                     encerrarBusca = callbackCinza()
                     if encerrarBusca:
                         return
+                    
             # vertice explorado (callback preto)                    
             listaCores[verticeAtual] = Grafo.COR_PRETO
             if callbackPreto is not None:
                 callbackPreto(verticeAtual)
     
-
+        # lista de pais importante para evitar falso positivo de deteccao de ciclos
         listaPais = [(-1, -1)] * self.__numVertices # idAresta, pai
         listaCores = [Grafo.COR_BRANCO] * self.__numVertices
         numComponentes = 0
@@ -102,6 +114,7 @@ class Grafo:
         
         return numComponentes
 
+    # todo grafo bipartido eh 2-colorivel
     def ehBipartido(self):
 
         NAO_COLORIDO = -1
@@ -112,6 +125,8 @@ class Grafo:
         def corOposta(cor):
             return CORES[cor]
 
+        # BFS, se vertice adjacente nao foi colorido atribui a ele uma cor oposta
+        # caso contrario, verifica se a cor condiz com a propriedade de um grafo bipartido
         def bfsColorida(origem):
             
             filaVertices = [origem]
@@ -138,9 +153,10 @@ class Grafo:
         return 1
 
 
-
+    # verifica conectividade, fraca para GD
     def ehConexo(self):
 
+        # BFS padrao, contagem de vertices encontrados para determinar conectividade
         def verticesEncontradosBfs(grafo):
 
             listaCores = [Grafo.COR_BRANCO] * grafo.__numVertices
@@ -169,12 +185,15 @@ class Grafo:
                 
             return grafoNaoDirecionado
 
+        # para GND, a busca eh feita no proprio grafo
+        # para GD, a busca eh feita no grafo temporario resultante da remocao do sentido das arestas
         grafoBusca = self if not self.ehDirecionado else criarGrafoNaoDirecionado()
 
         return int((verticesEncontradosBfs(grafoBusca) == self.__numVertices))
     
     def possuiCiclo(self):
 
+        # callback invocada quando um vertice cinza eh encontrado na DFS, com efeito colateral para informar disparo da mesma
         def callbackCiclo():
             nonlocal cicloEncontrado
             cicloEncontrado = True
@@ -204,31 +223,38 @@ class Grafo:
             
             return grauEntrada == grauSaida
 
-        # verifica conectividade
+        # verifica conectividade, todo grafo euleriano deve ser conexo
         if not self.ehConexo():
             return 0
 
-        # todos vertices com grau par
+        # todos vertices com grau par, para GND
         if not self.ehDirecionado:
             return int(verticeGrauImparND() == False)
         
+        # pseudossimetrico, para GD
         return int(grauBalanceadoD())
     
     def componentesConexas(self):
-
+        # disponivel apenas para GND
+        # o n° de componentes eh definido pela quantidade de vezes que a busca teve de ser reiniciada
         numComponentes = self.buscaEmProfundidade()
         return numComponentes
 
     def componentesFortementeConexas(self):
+        # disponivel apenas para GD
+        # DFS feita marcando tempo de saida (callback preto = marcarTempo)
+        # arestas de arvore no grafo transposto identificam componentes
 
         def dfsComponentes():
-
+            
+            # vertices escolhidos em ordem decrescente de tempo de saida
             def escolherVerticeIncial():
                 for indexVertice in ordemSaida:
                     if listaCores[indexVertice] == Grafo.COR_BRANCO:
                         return indexVertice
                 return None    
 
+            # DFS comum
             def buscaEmProfundidadeAux(verticeAtual):
 
                 for idVizinho, _ in grafoTransposto.__LA[verticeAtual].vizinhos.values():
@@ -240,6 +266,7 @@ class Grafo:
             listaCores = [Grafo.COR_BRANCO] * grafoTransposto.__numVertices
             indexInicialBusca = escolherVerticeIncial()
 
+            # cada vez que a DFS eh reiniciada uma CFC eh detectada
             while indexInicialBusca is not None:
                 numComponentes += 1
                 listaCores[indexInicialBusca] = Grafo.COR_CINZA
@@ -251,6 +278,7 @@ class Grafo:
         def marcarTempo(indexVertice):
             ordemSaida.insert(0, indexVertice) # vertices inseridos em ordem decrescente de tempo de saida
 
+        # G^t
         def criarGrafoTransposto():
             grafoTransposto = Grafo(numVertices = self.__numVertices, ehDirecionado = self.ehDirecionado)
             grafoTransposto.__numArestas = self.__numArestas
@@ -268,6 +296,7 @@ class Grafo:
         numComponentes = dfsComponentes()
         return numComponentes
 
+    # BFS, adiciona vertices a lista que representa a arvore de busca resultante
     def arvoreDeLargura(self):
 
         listaCores = [Grafo.COR_BRANCO] * self.__numVertices
@@ -290,6 +319,7 @@ class Grafo:
         
         return arvoreDeLargura
     
+    # DFS, adiciona vertices a lista que representa a arvore de busca resultante
     def arvoreDeProfundidade(self):
 
         def buscaEmProfundidadeAux(verticeAtual):
@@ -309,11 +339,15 @@ class Grafo:
 
         return arvoreDeProfundidade
     
+    # DFS-based
+    # quando um vertice se torna preto (nao possui dependentes nao explorados) eh add na pilha de execucao
     def ordemTopologica(self):
 
+        # pilha de execucao, callbackPreto
         def adicionarOrdemExecucao(verticePreto):
             ordemExecucao.insert(0, verticePreto)
         
+        # deteccao de ciclos, callbackCinza
         def callbackCiclo():
             nonlocal cicloEncontrado
             cicloEncontrado = True
@@ -328,26 +362,29 @@ class Grafo:
         
         return ordemExecucao
     
+    # desenvolvido, mas nn utilizado
     def prim(self):
 
+        # min heap de prioridades (arestas leves)
         def atualizaHeap(indexVertice):
             adicionadoAGM[indexVertice] = True
             for idAresta, (vizinho, pesoAresta) in self.__LA[indexVertice].vizinhos.items():
                 if not adicionadoAGM[vizinho]:
                     heapq.heappush(heapArestas, (pesoAresta, vizinho, idAresta))
 
+        # vertices explorados ou nao
         adicionadoAGM = [False for _ in range(self.__numVertices)]
-        # AGM = [] # id_arestas que pertencem à AGM
         heapArestas = []
 
         custo = 0
 
+        # inicializa a heap com os vizinhos da origem
         atualizaHeap(0)
 
         while heapArestas:
+            # remove vertice com menor custo associado e verifica se eh uma aresta segura
             c, vertice, _ = heapq.heappop(heapArestas)
             if not adicionadoAGM[vertice]:
-                # AGM.append(idAresta)
                 atualizaHeap(vertice)
                 custo += c
         return c
@@ -355,22 +392,23 @@ class Grafo:
 
     def kruskall(self):
 
+        # floresta de rotulos
         class UFDS:
             def __init__(self, numVertices):
-                self.__rank = [0] * numVertices
+                self.__rank = [0] * numVertices # altura da arvore
                 self.__pai = [i for i in range(numVertices)]
 
             def buscaPai(self, indexVertice):
                 
                 verticeAtual = indexVertice
-                verticesComponente = []
+                verticesComponente = [] # vertices encontrados na busca pelo rotulo da arvore
 
                 #rotulo da componente alcancado
                 while self.__pai[verticeAtual] != verticeAtual:
                     verticeAtual = self.__pai[verticeAtual]
                     verticesComponente.append(verticeAtual)
                 
-                # compressao da arvore
+                # compressao da arvore, otimizar futuras buscas
                 for v in verticesComponente:    
                     self.__pai[v] = verticeAtual
 
@@ -381,16 +419,16 @@ class Grafo:
                 return self.buscaPai(v1) == self.buscaPai(v2)
             
             def unificaComponente(self, v1, v2):
-
-                # if self.mesmaComponente(v1, v2):
-                #     return
                 
                 pai_v1 = self.buscaPai(v1)
                 pai_v2 = self.buscaPai(v2)
 
+                # uniao arvores de mesma altura, incrementa altura arvore resultante em 1
                 if self.__rank[pai_v1] == self.__rank[pai_v2]:
                     self.__pai[pai_v2] = pai_v1
                     self.__rank[pai_v1] += 1
+                
+                # arvore "menor" se torna sub arvore (arvore mais achatada otimiza busca)
                 else:
                     menorArvore, maiorArvore = (pai_v1, pai_v2) if self.__rank[pai_v1] < self.__rank[pai_v2] else (pai_v2, pai_v1)
                     self.__pai[menorArvore] = maiorArvore
@@ -399,6 +437,9 @@ class Grafo:
         arestas = sorted(self.__listaDeIncidencia, key = lambda aresta : aresta[3]) # ordena arestas pelo peso
         custoAGM = 0
         
+        # adicao de arestas leves e seguras
+        # limite de arestas = n - k, k eh o numero de componentes conexas
+        # considerando melhor otimizacao, apenas descarta arestas excedentes
         for _, v1, v2, pesoAresta in arestas:
             if not ufds.mesmaComponente(v1, v2):
                 ufds.unificaComponente(v1, v2)
@@ -406,20 +447,29 @@ class Grafo:
 
         return custoAGM
 
+    # deteccao de vertices e arestas pelo low de um vertice e numero de filhos da raiz
     def tarjan(self):
 
+        # verifica vertice nao explorado
         def naoVisitado(indexVertice):
             return tempoDescoberta[indexVertice] == NAO_VISITADO
 
+        # se chamada a partir da raiz da DFS, numero de filhos eh contado para determinar se raiz eh articulacao
+        # caso contrario, verificacao é feita pelo low
         def tarjanAux(*, indexVertice, ehRaiz = False):
             
+            # variaveis compartilhadas entre as execucoes, escopo da funcao externa
             nonlocal numFilhosRaiz, tempoAtual
 
             vertice = self.__LA[indexVertice]
             tempoDescoberta[indexVertice] = low[indexVertice] = tempoAtual
+            
+            # tempo de descoberta incrementado para cara vertice descoberto
             tempoAtual += 1
 
             for idAresta, (idVizinho, _) in vertice.vizinhos.items():
+
+                # vizinho nao visitado, aresta de arvore
                 if naoVisitado(idVizinho):
 
                     pai[idVizinho] = indexVertice
@@ -434,14 +484,17 @@ class Grafo:
                     elif low[idVizinho] >= tempoDescoberta[indexVertice]:
                         articulacoes.add(indexVertice)
 
+                    # deteccao de ponte
                     if low[idVizinho] > tempoDescoberta[indexVertice]:
                         pontes.add(idAresta)
 
+                # vizinho ja visitado, aresta de retorno ou cruzamento
                 elif pai[indexVertice] != idVizinho:
                     low[indexVertice] = min(low[indexVertice], tempoDescoberta[idVizinho])
 
         NAO_VISITADO = -1
 
+        # set, para evitar vertices duplicados
         articulacoes = set()
         pontes = set()
 
@@ -450,6 +503,7 @@ class Grafo:
         pai = [NAO_VISITADO] * self.__numVertices
         tempoAtual = 0
 
+        # tarjan eh aplicado para cada componente conexa
         for i in range(self.__numVertices):
             if naoVisitado(i):
                 numFilhosRaiz = 0
@@ -460,8 +514,10 @@ class Grafo:
         return articulacoes, pontes
     
 
+    # utilizado para definir circuito/trilha euleriana
     def fleury(self, *, verticeInicial = 0):
 
+        # verifica se a aresta obedece a regra da ponte
         def arestaValida(idAresta):
 
             nonlocal pontes
@@ -472,6 +528,7 @@ class Grafo:
                 numArestasDisponiveis = 0
                 ehArestaUnica = True
 
+                # na segunda aresta valida encontrada, ehArestaUnica eh False
                 for vIdAresta in verticeAtual.vizinhos.keys():
                     if arestasNaoExploradas[vIdAresta]:
                         if numArestasDisponiveis == 0:
@@ -480,10 +537,11 @@ class Grafo:
                             ehArestaUnica = False
                             break
                 
+                # toda aresta unica eh ponte
                 if ehArestaUnica:
                     return True
                 
-
+                # atualiza as arestas pontes do grafo atual
                 _, pontes = self.tarjan()
             
             # pontes ja foram calculadas e aresta nao e unica
@@ -496,7 +554,10 @@ class Grafo:
         circuito = [verticeInicial]
 
         while numArestasRestantes:
-
+            
+            # utiliza arestas do ultimo vertice adicionado no circuito
+            # pontes sao calculadas a cada adicao de aresta
+            # (arestas nao pontes tendem a se tornar pontes a medida que as demais sao marcadas como exploradas)
             verticeAtual = self.__LA[circuito[-1]]
             pontes = None
 
@@ -527,6 +588,9 @@ class Grafo:
             if numVerticesImpares != 2:
                 return None
             
+            # verifica se ha exatamente dois vertices com grau impar e seleciona vertice impar origem da trilha
+            # fleury eh chamado utilizando vertice impar como origem
+
             trilhaEuleriana = self.fleury(verticeInicial = verticeImparInicial)
             return trilhaEuleriana
 
@@ -538,15 +602,18 @@ class Grafo:
 
         PAI_NULO = (-1, -1)
 
+        # grafoResidual eh copia do grafo original, com adicao de arestas antiparalelas com capacidade 0, inicialmente
+        # necessario para solucao otima
         def criarGrafoResidual():
             grafoResidual = copy.deepcopy(self)
 
             for i, vertice in enumerate(self.__LA):
                     for idAresta, (idVizinho, _) in vertice.vizinhos.items():
-                        grafoResidual.__LA[idVizinho].vizinhos[idAresta] = (i, 0)
+                        grafoResidual.__LA[idVizinho].vizinhos[idAresta] = (i, 0) # (u, v) -> (v, u) + capacidade 0
 
             return grafoResidual
 
+        # BFS, iniciando na origem e interrompida quando destino eh alcançado
         def buscaCaminhoAumentante():
 
             arestasPai = [PAI_NULO] * grafoResidual.__numVertices # idAresta, pai
@@ -581,6 +648,7 @@ class Grafo:
             
             arestasPai = buscaCaminhoAumentante()    
 
+            # destino nao alcancado, nao ha caminho aumentante
             if arestasPai[verticeDestino] == PAI_NULO:
                 return 0
             
@@ -590,19 +658,22 @@ class Grafo:
 
             caminhoAumentante = [] # u, v, idAresta (u, v)
 
+            # versao iterativa do mapeamento do caminho aumentante, lista auxiliar caminhoAumentante
             while verticeAtual != verticeOrigem:
                 idArestaPai, pai = arestasPai[verticeAtual]
                 capacidadeAresta = grafoResidual.__LA[pai].vizinhos[idArestaPai][1]
 
+                # a cada aresta do caminho aumentante, fluxo é limitado pelo menor valor encontrado
                 fluxoAtual = min(fluxoAtual, capacidadeAresta)
                 caminhoAumentante.append((pai, verticeAtual, idArestaPai))
 
                 verticeAtual = pai
 
+            # agora, com o fluxo calculado, as capacidades das arestas pertencentes ao caminho aumentante sao atualizadas
             # atualizando valores de capacidade para conservar fluxo
             for u, v, idAresta in caminhoAumentante:
-                atualizaCapacidade(u, v, idAresta, -fluxoAtual)
-                atualizaCapacidade(v, u, idAresta, fluxoAtual)
+                atualizaCapacidade(u, v, idAresta, -fluxoAtual) # menos fluxo (capacidade) na ida
+                atualizaCapacidade(v, u, idAresta, fluxoAtual) # mais fluxo (capacidade) na volta
             
             return fluxoAtual
 
@@ -612,6 +683,8 @@ class Grafo:
         grafoResidual = criarGrafoResidual()
 
         fluxoEncerrado = False
+
+        # grafo Residual eh criado, enquanto houver fluxo escoado, caminho aumentante eh buscado 
 
         while not fluxoEncerrado:
             fluxo = atualizaFluxoRede()
@@ -626,6 +699,8 @@ class Grafo:
 
         INDEFINIDO = 1000000000000
 
+        # verifica se u reduz a estimativa de v, por meio da aresta (u, v)
+        # retorna true, em caso afirmativo (determina se instancia de v com custo em questao deve ser add ou descartado)
         def relaxar(u, v, pesoAresta):
             novaEstimativa = listaDistancias[u] + pesoAresta
             if listaDistancias[v] > novaEstimativa:
@@ -639,20 +714,30 @@ class Grafo:
         explorado = [False] * self.__numVertices
         listaDistancias = [INDEFINIDO] * self.__numVertices
         
-        heap = [(0, origem)]
+        # min heap de prioridade
+        heap = [(0, origem)] # estimativa atual e vertice associado
         listaDistancias[origem] = 0
 
         while heap:
 
+            # remove da fila vertice com menor estimativa (se nao explorado, faz parte da solucao otima)
             _, menorEstimativa = heapq.heappop(heap)
 
             if not explorado[menorEstimativa]:
 
+                # caminho minimo para destino calculado, fim do algoritmo
                 if menorEstimativa == destino:
                     return listaDistancias[menorEstimativa]
 
                 explorado[menorEstimativa] = True
 
+                # cada vertice explorado tenta relaxar os vizinhos
                 for vizinho, pesoAresta in self.__LA[menorEstimativa].vizinhos.values():
+
+                    # se estimativa melhora, nova instancia do vertice eh adicionada
+                    # as eventuais estimativas calculadas anteriores posteriormente serao descartadas
                     if relaxar(menorEstimativa, vizinho, pesoAresta):
                         heapq.heappush(heap, (listaDistancias[vizinho], vizinho))
+
+    def fechoTransitivo(self):
+        pass
