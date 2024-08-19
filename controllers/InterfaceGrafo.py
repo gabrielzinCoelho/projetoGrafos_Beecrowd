@@ -35,7 +35,7 @@ class InterfaceGrafo:
             11: self.__ordemTopologica, # Gerar (Ordem topológica)
             12: self.__gerarCaminhoMinimo, # Gerar (Valor do caminho mínimo entre dois vértices)
             13: self.__gerarFluxoMaximo, # Gerar (Valor do fluxo máximo)
-            14: lambda : print('x'), # Gerar (Fecho transitivo)
+            14: self.__gerarFechoTransitivo, # Gerar (Fecho transitivo)
             15: self.__listarTrilhaEuleriana, # Listar (Uma trilha Euleriana)
         }
     
@@ -130,3 +130,7 @@ class InterfaceGrafo:
     def __gerarCaminhoMinimo(self):
         valorCaminhoMinimo = self.__grafo.dijkstra()
         print(valorCaminhoMinimo)
+    
+    def __gerarFechoTransitivo(self):
+        fechoOrigem = self.__grafo.fechoTransitivo()
+        print(*fechoOrigem, sep = ' ')

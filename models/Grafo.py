@@ -1,5 +1,3 @@
-# Gabriel Coelho Costa - 10A (202310172)
-
 import heapq
 import copy
 
@@ -739,5 +737,22 @@ class Grafo:
                     if relaxar(menorEstimativa, vizinho, pesoAresta):
                         heapq.heappush(heap, (listaDistancias[vizinho], vizinho))
 
+
+    # fecho transitivo utilizando DFS (padronizar gabarito e saida esperada)
     def fechoTransitivo(self):
-        pass
+        
+        #DFS comum, adiona vertices na lista do fecho na ordem em que sao descobertos
+        def buscaEmProfundidadeAux(verticeAtual):
+
+            for idVizinho, _ in self.__LA[verticeAtual].vizinhos.values():
+                if listaCores[idVizinho] == Grafo.COR_BRANCO:
+                    fechoOrigem.append(idVizinho)
+                    listaCores[idVizinho] = Grafo.COR_CINZA
+                    buscaEmProfundidadeAux(idVizinho)                   
+
+        listaCores = [Grafo.COR_BRANCO] * self.__numVertices
+        fechoOrigem = []
+        listaCores[0] = Grafo.COR_CINZA
+        buscaEmProfundidadeAux(0)
+
+        return fechoOrigem
