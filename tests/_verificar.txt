@@ -33,3 +33,35 @@ grafo_6.txt - 10 (AGM)
 14 -> IMP
 
 15 -> Extra
+
+---------------------------------------------------------------------------------------------------------------------------
+
+0 -> articulacoes (6; 0 -> -1), camMin (12; -1 -> 30) * GE
+
+1 -> OK
+
+2 -> OK
+
+3 -> articulacoes (6; 0 37 -> 37)
+
+4 -> articulacoes (6; -1 -> 0), ponte (7; -1 -> 0), AGM (10; -1 -> 895) GE
+
+5 -> GAB ERRADO (listando pontes, ao inves das qtds) 
+
+6 -> GAB ERRADO AGM, e CAM MIN
+
+7 -> 1 (1 -> 0), GE pontes e articulacoes
+
+8 -> camMin (-1 -> 85) GE
+
+9 -> FluxoMax (179 -> 104) GE
+
+10 -> OK
+
+11 -> OK
+
+12 -> CFC (5; 4 -> 7), (13; 278 -> 154)
+
+13 -> OK
+
+14 -> OK
