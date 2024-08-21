@@ -4,7 +4,7 @@
 
 Implementar um sistema modular para análise de propriedades de grafos.
 
-A estrutura básica consistirá em um menu interativo onde o usuário poderá selecionar a propriedade do grafo que desejam analisar.
+A estrutura básica consistirá em um menu interativo onde o usuário poderá selecionar, via linha de comando, a propriedade do grafo que desejam analisar. 
 
 ## Funcões Implementadas
 
