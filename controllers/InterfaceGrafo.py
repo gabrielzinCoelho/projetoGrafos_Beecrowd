@@ -132,5 +132,8 @@ class InterfaceGrafo:
         print(valorCaminhoMinimo)
     
     def __gerarFechoTransitivo(self):
-        fechoOrigem = self.__grafo.fechoTransitivo()
-        print(*fechoOrigem, sep = ' ')
+        if not self.__grafo.ehDirecionado:
+            print(-1)
+        else:
+            fechoOrigem = self.__grafo.fechoTransitivo()
+            print(*fechoOrigem, sep = ' ')

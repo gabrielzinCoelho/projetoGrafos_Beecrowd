@@ -221,16 +221,12 @@ class Grafo:
             
             return grauEntrada == grauSaida
 
-        # verifica conectividade, todo grafo euleriano deve ser conexo
-        if not self.ehConexo():
-            return 0
-
         # todos vertices com grau par, para GND
         if not self.ehDirecionado:
-            return int(verticeGrauImparND() == False)
+            return int(self.ehConexo() and verticeGrauImparND() == False)
         
-        # pseudossimetrico, para GD
-        return int(grauBalanceadoD())
+        # pseudossimetrico e uma unica CFC, para GD
+        return int(self.componentesFortementeConexas() == 1 and grauBalanceadoD())
     
     def componentesConexas(self):
         # disponivel apenas para GND
@@ -736,6 +732,8 @@ class Grafo:
                     # as eventuais estimativas calculadas anteriores posteriormente serao descartadas
                     if relaxar(menorEstimativa, vizinho, pesoAresta):
                         heapq.heappush(heap, (listaDistancias[vizinho], vizinho))
+        
+        return -1
 
 
     # fecho transitivo utilizando DFS (padronizar gabarito e saida esperada)
